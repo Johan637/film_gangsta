@@ -3,4 +3,4 @@ index.py
 data
 templates/index.html
 auto_add.py
-
+.gitignore
