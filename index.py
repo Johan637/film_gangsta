@@ -107,13 +107,30 @@ class Comment(db.Model):
     
 
 
+def get_actors(**kwargs):
+    actors = db.session.execute(db.select(Actor)).scalars()
+    return actors
+    
 
 
-
+def create_actor():
+    actor = Actor("Ryan", "Gosling")
+    db.session.add(actor)
+    db.session.commit()
+    return actor 
 
 @app.route('/')
+
 def index():
-    return render_template('index.html')
+    actors = get_actors()
+    result = ""
+    for actor in actors:
+        result += actor.firstname + " " + actor.lastname + "<br>" 
+    return result 
+
+
+
+
 
 
 with app.app_context():
