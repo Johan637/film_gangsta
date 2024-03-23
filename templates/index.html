@@ -5,11 +5,45 @@
         <style href="../node_modules/bootstrap/scss/bootstrap.scss"> </style>
     </head>
     <nav>
+        <form action="/login_form">
+        <button type="submit" name="login">
+            login
+        </button>
+        </form>
         
+        <form action="/signin_form">
+            <button type="submit" name="sign_in">
+                sign in
+            </button>
+            </form>
+            
     </nav>
     <body class="container"> 
+
         <div class="row">
-        <div class="col-10 bg-dark"></div>
+        <div class="col-10 bg-dark"> 
+            <form method="get" action="/login" style="display:{{ login_form }}">
+                
+                <input type="text" name="username" id="username" placeholder="username">
+                <input type="password" name="password"  id="password" placeholder = "password">
+                <input type = "submit" value="login">
+                
+
+            </form> 
+
+            <form method="get" action="/sign_in" style="display:{{ signin_form }}">
+                
+                <input type="text" name="username" id="username" placeholder="username">
+                <input type="password" name="password"  id="password" placeholder = "password">
+                <input type = "submit" value="signin">
+                
+
+            </form> 
+
+
+
+        </div>
+    
         </div>
     </body>
 </html>

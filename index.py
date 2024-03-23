@@ -1,7 +1,8 @@
 import os
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import bcrypt
 
 
 app = Flask(__name__)
@@ -17,6 +18,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 Migrate(app, db)
+ACTIVE_USER = None
 
 
 class Director(db.Model):
@@ -119,19 +121,52 @@ def create_actor():
     db.session.commit()
     return actor 
 
+
+def get_users(name = ""):
+    users = None
+    if name:
+        users = db.session.execute(db.select(User).filter_by(name=name)).scalars()
+    else:
+        users = db.session.execute(db.select(User)).scalars()
+    return users
+
+
+def create_user(name, password):
+    salt = bcrypt.gensalt()
+    user = User(name, bcrypt.hashpw(password, salt))
+    db.session.add(user)
+    db.session.commit()
+    return user 
+
+
 @app.route('/')
-
 def index():
-    actors = get_actors()
-    result = ""
-    for actor in actors:
-        result += actor.firstname + " " + actor.lastname + "<br>" 
-    return result 
+    return render_template("index.html", login_form = None, signin_form = None)
+    
+
+@app.route('/login_form')
+def login_form():
+    return render_template("index.html", login_form = "block", signin_form = None)
 
 
+@app.route('/login', methods=["POST"])
+def login():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    users = get_users(username)
+    luser = None #login user
+    for user in users:
+        if bcrypt.checkpw(password, user.password):
+            luser = user
+            break
+    if luser:
+        ACTIVE_USER = luser # no u 
 
 
-
+@app.route('/signin_form')
+def signin_form():
+    return render_template("index.html", signin_form = "block", login_form = None)
+        
 
 with app.app_context():
     db.create_all()
