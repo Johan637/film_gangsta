@@ -77,9 +77,9 @@ class User(db.Model):
     email = db.Column(db.Text)
     password = db.Column(db.Text)
 
-    def __init__(self, name, email, password):
-        self.name = name
+    def __init__(self, email, name, password):
         self.email = email
+        self.name = name
         self.password = password
 
 
@@ -124,18 +124,22 @@ def create_actor():
     return actor
 
 
-def get_users(name = ""):
+def get_users(name="", email=""):
     users = None
     if name:
         users = db.session.execute(db.select(User).filter_by(name=name)).scalars()
+    elif email:
+        users = db.session.execute(db.select(User).filter_by(email=email)).scalars()
     else:
         users = db.session.execute(db.select(User)).scalars()
     return users
 
 
-def create_user(name, password):
+def create_user(email, name, password):
+    if get_users(name = name) or get_users(email = email):
+        return
     salt = bcrypt.gensalt()
-    user = User(name, bcrypt.hashpw(password, salt))
+    user = User(email, name, bcrypt.hashpw(password, salt))
     db.session.add(user)
     db.session.commit()
     return user
@@ -153,9 +157,17 @@ def login_form():
 
 @app.route('/login', methods=["POST"])
 def login():
+    email = False
     username = request.form.get("username")
+    if "@" in username:
+        email = True
+
     password = request.form.get("password")
-    users = get_users(username)
+    users = None
+    if email:
+        users = get_users(email = username)
+    else:
+        users = get_users(username)
     luser = None #login user
     for user in users:
         if bcrypt.checkpw(password, user.password):
@@ -165,10 +177,20 @@ def login():
         ACTIVE_USER = luser # no u
 
 
+
 @app.route('/signin_form')
 def signin_form():
     return render_template("index.html", signin_form = "block", login_form = None)
+
         
+@app.route('/signin', methods = ["POST"])
+def signin():
+    email = request.form.get("email")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    create_user(email, username, password)
+    return render_template("index.html", signin_form = None, login_form = None)
+
 
 with app.app_context():
     db.create_all()
