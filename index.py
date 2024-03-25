@@ -29,7 +29,7 @@ class Director(db.Model):
 
     def __init__(self, firstname, lastname):
         self.firstname = firstname
-        self.lastname = lastname 
+        self.lastname = lastname
 
 
 class Film(db.Model):
@@ -74,10 +74,12 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
+    email = db.Column(db.Text)
     password = db.Column(db.Text)
 
-    def __init__(self, name, password):
+    def __init__(self, name, email, password):
         self.name = name
+        self.email = email
         self.password = password
 
 
@@ -106,7 +108,7 @@ class Comment(db.Model):
         self.description = description
         self.film_id = film_id
 
-    
+ 
 
 
 def get_actors(**kwargs):
@@ -119,7 +121,7 @@ def create_actor():
     actor = Actor("Ryan", "Gosling")
     db.session.add(actor)
     db.session.commit()
-    return actor 
+    return actor
 
 
 def get_users(name = ""):
@@ -136,13 +138,13 @@ def create_user(name, password):
     user = User(name, bcrypt.hashpw(password, salt))
     db.session.add(user)
     db.session.commit()
-    return user 
+    return user
 
 
 @app.route('/')
 def index():
     return render_template("index.html", login_form = None, signin_form = None)
-    
+
 
 @app.route('/login_form')
 def login_form():
@@ -160,7 +162,7 @@ def login():
             luser = user
             break
     if luser:
-        ACTIVE_USER = luser # no u 
+        ACTIVE_USER = luser # no u
 
 
 @app.route('/signin_form')
