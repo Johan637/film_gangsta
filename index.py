@@ -151,7 +151,6 @@ def create_user(email, name, password):
     user = User(email, name, bcrypt.hashpw(password.encode('utf8'), salt))
     db.session.add(user)
     db.session.commit()
-    return user
 
 
 @app.route('/')
@@ -204,8 +203,16 @@ def signin():
     email = request.form.get("email")
     username = request.form.get("username")
     password = request.form.get("password")
-    global ACTIVE_USER
-    ACTIVE_USER = create_user(email, username, password)
+    create_user(email, username, password)
+    users = get_users(username)
+    luser = None #login user
+    for user in users:
+        if bcrypt.checkpw(password.encode('utf8'), user.password):
+            luser = user
+            break
+    if luser:
+        global ACTIVE_USER
+        ACTIVE_USER = luser # no u
     return redirect(url_for('index'))
 
 
