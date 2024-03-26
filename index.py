@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import bcrypt
@@ -116,7 +116,6 @@ class Comment(db.Model):
 def get_actors(**kwargs):
     actors = db.session.execute(db.select(Actor)).scalars()
     return actors
-    
 
 
 def create_actor():
@@ -129,19 +128,27 @@ def create_actor():
 def get_users(name="", email=""):
     users = None
     if name:
-        users = db.session.execute(db.select(User).filter_by(name=name)).scalars()
+        users = db.session.execute(db.select(User).filter_by(name=name)).scalars().all()
     elif email:
-        users = db.session.execute(db.select(User).filter_by(email=email)).scalars()
+        users = db.session.execute(db.select(User).filter_by(email=email)).scalars().all()
     else:
         users = db.session.execute(db.select(User)).scalars().all()
     return users
 
 
+def get_user_dict(user):
+    result = {}
+    if user:
+        result['name'] = user.name
+        result['email'] = user.email
+    return result
+
+
 def create_user(email, name, password):
-    if get_users(name = name) or get_users(email = email):
+    if get_users(name=name) or get_users(email=email):
         return
     salt = bcrypt.gensalt()
-    user = User(email, name, bcrypt.hashpw(password, salt))
+    user = User(email, name, bcrypt.hashpw(password.encode('utf8'), salt))
     db.session.add(user)
     db.session.commit()
     return user
@@ -149,12 +156,12 @@ def create_user(email, name, password):
 
 @app.route('/')
 def index():
-    return render_template("index.html", login_form = None, signin_form = None)
+    return render_template("index.html", login_form=False, signin_form=False, user=get_user_dict(ACTIVE_USER))
 
 
 @app.route('/login_form')
 def login_form():
-    return render_template("index.html", login_form = "block", signin_form = None)
+    return render_template("index.html", login_form=True, signin_form=False, user=get_user_dict(ACTIVE_USER))
 
 
 @app.route('/login', methods=["POST"])
@@ -163,7 +170,6 @@ def login():
     username = request.form.get("username")
     if "@" in username:
         email = True
-
     password = request.form.get("password")
     users = None
     if email:
@@ -172,17 +178,25 @@ def login():
         users = get_users(username)
     luser = None #login user
     for user in users:
-        if bcrypt.checkpw(password, user.password):
+        if bcrypt.checkpw(password.encode('utf8'), user.password):
             luser = user
             break
     if luser:
+        global ACTIVE_USER
         ACTIVE_USER = luser # no u
+    return redirect(url_for('index'))
 
+
+@app.route('/logout')
+def logout():
+    global ACTIVE_USER
+    ACTIVE_USER = None
+    return redirect(url_for('index'))
 
 
 @app.route('/signin_form')
 def signin_form():
-    return render_template("index.html", signin_form = "block", login_form = None)
+    return render_template("index.html", signin_form = True, login_form=False, user=get_user_dict(ACTIVE_USER))
 
 
 @app.route('/signin', methods = ["POST"])
@@ -190,8 +204,9 @@ def signin():
     email = request.form.get("email")
     username = request.form.get("username")
     password = request.form.get("password")
-    create_user(email, username, password)
-    return redirect(url_for('', signin_form=None, login_form=None))
+    global ACTIVE_USER
+    ACTIVE_USER = create_user(email, username, password)
+    return redirect(url_for('index'))
 
 
 with app.app_context():
