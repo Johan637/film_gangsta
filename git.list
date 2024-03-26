@@ -2,5 +2,7 @@ git.list
 index.py
 data
 templates/index.html
+templates/nav.html
+templates/film.html
 auto_add.py
 .gitignore
