@@ -39,12 +39,14 @@ class Film(db.Model):
     director_id = db.Column(db.Integer)
     description = db.Column(db.Text)
     year = db.Column(db.Integer)
+    category = db.Column(db.String(64))
 
-    def __init__(self, title, description, director_id, year):
+    def __init__(self, title, description, director_id, year, category):
         self.title = title
         self.decription = description
         self.director_id
         self.year = year
+        self.category = category
 
 
 class Actor(db.Model):
@@ -110,8 +112,6 @@ class Comment(db.Model):
         self.description = description
         self.film_id = film_id
 
- 
-
 
 def get_actors(**kwargs):
     actors = db.session.execute(db.select(Actor)).scalars()
@@ -133,7 +133,7 @@ def get_users(name="", email=""):
     elif email:
         users = db.session.execute(db.select(User).filter_by(email=email)).scalars()
     else:
-        users = db.session.execute(db.select(User)).scalars()
+        users = db.session.execute(db.select(User)).scalars().all()
     return users
 
 
