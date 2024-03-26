@@ -37,10 +37,12 @@ class Film(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
     director_id = db.Column(db.Integer)
+    description = db.Column(db.Text)
     year = db.Column(db.Integer)
 
-    def __init__(self, title, director_id, year):
+    def __init__(self, title, description, director_id, year):
         self.title = title
+        self.decription = description
         self.director_id
         self.year = year
 
@@ -182,14 +184,14 @@ def login():
 def signin_form():
     return render_template("index.html", signin_form = "block", login_form = None)
 
-        
+
 @app.route('/signin', methods = ["POST"])
 def signin():
     email = request.form.get("email")
     username = request.form.get("username")
     password = request.form.get("password")
     create_user(email, username, password)
-    return render_template("index.html", signin_form = None, login_form = None)
+    return redirect(url_for('', signin_form=None, login_form=None))
 
 
 with app.app_context():
