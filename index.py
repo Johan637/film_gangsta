@@ -24,36 +24,57 @@ ACTIVE_USER = None
 class Director(db.Model):
     __tablename__ = 'director'
     id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.Text)
-    lastname = db.Column(db.Text)
+    firstname = db.Column(db.String(64))
+    lastname = db.Column(db.String(128))
 
     def __init__(self, firstname, lastname):
         self.firstname = firstname
         self.lastname = lastname
 
 
+class Category(db.Model):
+    __tablename__ = 'category'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+
+    def __init__(self, name):
+        self.name = name
+
+
 class Film(db.Model):
     __tablename__ = 'film'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text)
+    title = db.Column(db.String(64))
     director_id = db.Column(db.Integer)
     description = db.Column(db.Text)
     year = db.Column(db.Integer)
-    category = db.Column(db.String(64))
+    thumbnail = db.Column(db.String(128))
 
-    def __init__(self, title, description, director_id, year, category):
+    def __init__(self, title, description, director_id, year, category, thumbnail):
         self.title = title
         self.decription = description
         self.director_id
         self.year = year
         self.category = category
+        self.thumbnail = thumbnail
+
+
+class Film_Category(db.Model):
+    __tablename__ = 'film_category'
+    id = db.Column(db.Integer, primary_key=True)
+    film_id = db.Column(db.Integer)
+    category_id = db.Column(db.Integer)
+
+    def __init__(self, film_id, category_id):
+        self.film_id = film_id
+        self.category_id = category_id
 
 
 class Actor(db.Model):
     __tablename__ = 'actor'
     id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.Text)
-    lastname = db.Column(db.Text)
+    firstname = db.Column(db.String(64))
+    lastname = db.Column(db.String(64))
 
     def __init__(self, firstname, lastname):
         self.firstname = firstname
@@ -65,7 +86,7 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     actor_id = db.Column(db.Integer)
     film_id = db.Column(db.Integer)
-    character = db.Column(db.Text)
+    character = db.Column(db.String(64))
 
     def __init__(self, actor_id, film_id, character):
         self.actor_id = actor_id
@@ -77,9 +98,9 @@ class User(db.Model):
     # use me mommy
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text)
-    email = db.Column(db.Text)
-    password = db.Column(db.Text)
+    name = db.Column(db.String(64))
+    email = db.Column(db.String(64))
+    password = db.Column(db.String(64))
 
     def __init__(self, email, name, password):
         self.email = email
@@ -92,11 +113,13 @@ class Quote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     description = db.Column(db.Text)
+    character_id = db.Column(db.Integer)
     film_id = db.Column(db.Integer)
 
-    def __init__(self, user_id, description, film_id):
+    def __init__(self, user_id, description, role_id, film_id):
         self.user_id = user_id
         self.description = description
+        self.character = role_id
         self.film_id = film_id
 
 
