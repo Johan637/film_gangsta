@@ -2,10 +2,10 @@
 <html>
     <head>
         <title>Filmgangsta</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="ano>
-        <!--<link rel="stylesheet" href="../node_modules/bootstrap/scss/bootstrap.scss">-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        
     </head>
-    <body class="container-fluid">
+    <body class="container-fluid" style = "background-color:#778da9 ;">
         <nav class="col-12 navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
             <a class="navbar-brand ms-5" href="/">Film Gangsta</a>
             <ul class="navbar-nav me-5">
@@ -37,7 +37,86 @@
                 {% endif %}
             </ul>
         </nav>
+        <div class="nav flex-column col-2 bg-secondary p-3">
+            <div class="mx-2 my-3">
+                <form class="nav-item form-group col-10" method="post" action="/search">
+                    <input class="form-control my-2" type="text" name="search" id="search" placeholder="search">
+                    <button class="btn btn-dark float-end" type="submit">Search</button>
+                </form>
+                <div class="mav-item mt-5">
+                    <div class="mt-2">
+                        <a class="btn btn-secondary">Categories +</a>
+                    </div>
+                    <div class="mt-2">
+                        <a class="btn btn-secondary">Actors +</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container">
+            <div class="row">
+                <div class="col-12"> 
+                    {% if login_form: %}
+                    <form method="post" action="/login">
+                        <input type="text" name="username" id="username" placeholder="username/email">
+                        <input type="password" name="password"  id="password" placeholder="password">
+                        <input type="submit" value="login">
+                    </form> 
+                    {% endif %}
+                    {% if signin_form %}
+                    <form method="post" action="/signin">
+                        <input type="email" name="email" id="email" placeholder="email">
+                        <input type="text" name="username" id="username" placeholder="username">
+                        <input type="password" name="password"  id="password" placeholder="password">
+                        <input type="submit" value="signin">
+                    </form> 
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="container mt-3">
+                <div class = "row">
+                    <div class = "col-6 border p-0">
+                            <img src="C:\Users\ellen\Documents\film_gangsta\thumbnails\oppenheimer.jpg" class="img-fluid border" alt = "barbeh" > 
+                    </div>
+                        
+                    <div class = "col-6 border">
+                        <div class = "row border">
+                            <h1> Title</h1>
+                        </div>
+                        <div class = "row border">
+                            <h2> year</h2>
+                        </div>
+                        <div class = "row border">
+                            <h2> actor 1</h2>
+                            <h2> actor 2</h2>
+                            <h2> actor 3</h2>
+                        </div>
+                        <div class = "row border">
+                            <h2> director</h2>
+                        </div>
+                        <div class = "row border py-2">
+                            <h2> genre</h2>
+                        </div>
+                    </div>
+                    <div class = "row mt-3">
+                        <div class = "col-5 border">
+                            <h2>desc</h2>
+                        </div>
+                        <div class = "col-7 border">
+                            <h2> quotes</h2>
+                        </div>
+
+                    </div>
+                    <div class = "row  my-3">
+                        <div class = "col-12 border">
+                        <h2> comments</h2>
+                        </div>
+                    </div>
+                </div>
+           
+        
             
         </div>
     </body>
