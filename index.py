@@ -95,7 +95,6 @@ class Role(db.Model):
 
 
 class User(db.Model):
-    # use me mommy
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
@@ -205,7 +204,7 @@ def login():
             break
     if luser:
         global ACTIVE_USER
-        ACTIVE_USER = luser # no u
+        ACTIVE_USER = luser 
     return redirect(url_for('index'))
 
 

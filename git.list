@@ -1,6 +1,7 @@
 git.list
 index.py
 data
+thumbnails/*
 templates/index.html
 templates/film.html
 .gitignore
