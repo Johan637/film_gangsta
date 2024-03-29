@@ -4,6 +4,8 @@ data
 thumbnails/*
 templates/index.html
 templates/film.html
+templates/search.html
+static/*
 .gitignore
 auto_add.py
 

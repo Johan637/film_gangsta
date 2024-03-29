@@ -9,6 +9,8 @@ app = Flask(__name__)
 
 # Sleutel opgeven voor het gebruik van Forms
 app.config['SECRET_KEY'] = 'mysecretkey'
+IMG_FOLDER = os.path.join('static', 'thumbnails')
+app.config["UPLOAD_FOLDER"] = IMG_FOLDER
 
 # DATABASE en MODELS
 
@@ -19,6 +21,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 Migrate(app, db)
 ACTIVE_USER = None
+CENTRAL_DICT = {}
 
 
 class Director(db.Model):
@@ -75,10 +78,12 @@ class Actor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(64))
     lastname = db.Column(db.String(64))
+    thumbnail = db.Column(db.String(128))
 
-    def __init__(self, firstname, lastname):
+    def __init__(self, firstname, lastname, thumbnail):
         self.firstname = firstname
         self.lastname = lastname
+        self.thumbnail = thumbnail
 
 
 class Role(db.Model):
@@ -112,13 +117,13 @@ class Quote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     description = db.Column(db.Text)
-    character_id = db.Column(db.Integer)
+    character = db.Column(db.String(64))
     film_id = db.Column(db.Integer)
 
-    def __init__(self, user_id, description, role_id, film_id):
+    def __init__(self, user_id, description, character, film_id):
         self.user_id = user_id
         self.description = description
-        self.character = role_id
+        self.character = character
         self.film_id = film_id
 
 
@@ -135,9 +140,29 @@ class Comment(db.Model):
         self.film_id = film_id
 
 
-def get_actors(**kwargs):
-    actors = db.session.execute(db.select(Actor)).scalars()
+
+def get_movies(title=''):
+    movies  = []
+    if title:
+        movies = Film.query.filter(Film.title.contains(title)).all()
+    else:
+        movies = db.session.execute(db.select(Film)).scalars().all()
+    return movies
+
+
+def get_actors(name=''):
+    actors = []
+    if name:
+        actors.extend(db.session.execute(db.select(Actor).filter_by(firstname=name)).scalars().all())
+        actors.extend(db.session.execute(db.select(Actor).filter_by(lastname=name)).scalars().all())
+    else:
+        actors = db.session.execute(db.select(Actor)).scalars().all()
     return actors
+
+
+def get_categories(**kwargs):
+    categories = db.session.execute(db.select(Category).order_by(Category.name)).scalars().all()
+    return categories
 
 
 def create_actor():
@@ -175,14 +200,15 @@ def create_user(email, name, password):
     db.session.commit()
 
 
+def build_dict(dict, **kwargs):
+    for kw, arg in kwargs.items():
+        dict[kw] = arg
+
+
 @app.route('/')
 def index():
-    return render_template("index.html", login_form=False, signin_form=False, user=get_user_dict(ACTIVE_USER))
-
-
-@app.route('/login_form')
-def login_form():
-    return render_template("index.html", login_form=True, signin_form=False, user=get_user_dict(ACTIVE_USER))
+    build_dict(CENTRAL_DICT, page=url_for('index'))
+    return render_template("index.html", resources=CENTRAL_DICT)
 
 
 @app.route('/login', methods=["POST"])
@@ -204,23 +230,20 @@ def login():
             break
     if luser:
         global ACTIVE_USER
-        ACTIVE_USER = luser 
-    return redirect(url_for('index'))
+        ACTIVE_USER = luser # no u
+    build_dict(CENTRAL_DICT, user=ACTIVE_USER)
+    return redirect(CENTRAL_DICT['page'])
 
 
 @app.route('/logout')
 def logout():
     global ACTIVE_USER
-    ACTIVE_USER = None
-    return redirect(url_for('index'))
+    ACTIVE_USER = {}
+    build_dict(CENTRAL_DICT, user=ACTIVE_USER)
+    return redirect(CENTRAL_DICT['page'])
 
 
-@app.route('/signin_form')
-def signin_form():
-    return render_template("index.html", signin_form = True, login_form=False, user=get_user_dict(ACTIVE_USER))
-
-
-@app.route('/signin', methods = ["POST"])
+@app.route('/signin', methods=["POST"])
 def signin():
     email = request.form.get("email")
     username = request.form.get("username")
@@ -235,7 +258,28 @@ def signin():
     if luser:
         global ACTIVE_USER
         ACTIVE_USER = luser # no u
-    return redirect(url_for('index'))
+    build_dict(CENTRAL_DICT, user=ACTIVE_USER)
+    return redirect(CENTRAL_DICT['page'])
+
+
+@app.route('/categories')
+def categories():
+    categories = {}
+    if not CENTRAL_DICT.get('categories', {}):
+        categories = get_categories()
+    build_dict(CENTRAL_DICT, categories=categories)
+    return redirect(CENTRAL_DICT['page'])
+
+
+@app.route('/search', methods=['POST'])
+def search():
+    query = request.form.get('search')
+    result = {'movies': [], 'actors': []}
+    result['movies'] = get_movies(query)
+    result['actors'] = get_actors(query)
+    print(result['actors'])
+    build_dict(CENTRAL_DICT, page='search', search=result)
+    return render_template('search.html', resources=CENTRAL_DICT)
 
 
 with app.app_context():
