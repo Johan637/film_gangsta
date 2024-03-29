@@ -1,11 +1,10 @@
 git.list
 index.py
 data
-thumbnails/*
 templates/index.html
 templates/film.html
 templates/search.html
-static/*
+static/thumbnails/*
 .gitignore
 auto_add.py
 

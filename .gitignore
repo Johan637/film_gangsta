@@ -1,6 +1,7 @@
 venv/
 node_modules/
 package-lock.json
+script.sql
 templates/test.html
 templates/nav.html
 data.sql

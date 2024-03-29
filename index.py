@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import bcrypt
@@ -20,8 +20,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 Migrate(app, db)
-ACTIVE_USER = None
-CENTRAL_DICT = {}
 
 
 class Director(db.Model):
@@ -34,6 +32,9 @@ class Director(db.Model):
         self.firstname = firstname
         self.lastname = lastname
 
+    def get(self):
+        return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname}
+
 
 class Category(db.Model):
     __tablename__ = 'category'
@@ -43,34 +44,42 @@ class Category(db.Model):
     def __init__(self, name):
         self.name = name
 
+    def get(self):
+        return {'id': self.id, 'name': self.name}
+
 
 class Film(db.Model):
     __tablename__ = 'film'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
-    director_id = db.Column(db.Integer)
+    director_id = db.Column(db.Integer, db.ForeignKey('director.id'))
     description = db.Column(db.Text)
     year = db.Column(db.Integer)
     thumbnail = db.Column(db.String(128))
 
-    def __init__(self, title, description, director_id, year, category, thumbnail):
+    def __init__(self, title, description, director_id, year, thumbnail):
         self.title = title
         self.decription = description
         self.director_id
         self.year = year
-        self.category = category
         self.thumbnail = thumbnail
+
+    def get(self):
+        return {'id': self.id, 'title': self.title, 'description': self.description, 'director_id': self.director_id, 'year': self.year, 'thumbnail': self.thumbnail}
 
 
 class Film_Category(db.Model):
     __tablename__ = 'film_category'
     id = db.Column(db.Integer, primary_key=True)
-    film_id = db.Column(db.Integer)
-    category_id = db.Column(db.Integer)
+    film_id = db.Column(db.Integer, db.ForeignKey('film.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
     def __init__(self, film_id, category_id):
         self.film_id = film_id
         self.category_id = category_id
+
+    def get(self):
+        return {'id': self.id, 'film_id': film_id, 'category_id': category_id}
 
 
 class Actor(db.Model):
@@ -85,18 +94,24 @@ class Actor(db.Model):
         self.lastname = lastname
         self.thumbnail = thumbnail
 
+    def get(self):
+        return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname, 'thumbnail': self.thumbnail}
+
 
 class Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)
-    actor_id = db.Column(db.Integer)
-    film_id = db.Column(db.Integer)
+    actor_id = db.Column(db.Integer, db.ForeignKey('actor.id'))
+    film_id = db.Column(db.Integer, db.ForeignKey('film.id'))
     character = db.Column(db.String(64))
 
     def __init__(self, actor_id, film_id, character):
         self.actor_id = actor_id
         self.film_id = film_id
         self.character = character
+
+    def get(self):
+        return {'id': self.id, 'actor_id': self.actor_id, 'film_id': self.film_id, 'character': self.character}
 
 
 class User(db.Model):
@@ -111,14 +126,17 @@ class User(db.Model):
         self.name = name
         self.password = password
 
+    def get(self):
+        return {'id': self.id, 'name': self.name, 'email': self.email}
+
 
 class Quote(db.Model):
     __tablename__ = 'quote'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     description = db.Column(db.Text)
     character = db.Column(db.String(64))
-    film_id = db.Column(db.Integer)
+    film_id = db.Column(db.Integer, db.ForeignKey('film.id'))
 
     def __init__(self, user_id, description, character, film_id):
         self.user_id = user_id
@@ -126,18 +144,26 @@ class Quote(db.Model):
         self.character = character
         self.film_id = film_id
 
+    def get(self):
+        return {'id': self.id, 'user_id': self.user_id, 'description': self.description, 'character': self.character, 'film_id': self.film_id}
+
+
+
 
 class Comment(db.Model):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     description = db.Column(db.Text)
-    film_id = db.Column(db.Integer)
+    film_id = db.Column(db.Integer, db.ForeignKey('film.id'))
 
     def __init__(self, user_id, description, film_id):
         self.user_id = user_id
         self.description = description
         self.film_id = film_id
+
+    def get(self):
+        return {'id': self.id, 'user_id': self.user_id, 'description': self.description, 'film_id': self.film_id}
 
 
 
@@ -160,9 +186,20 @@ def get_actors(name=''):
     return actors
 
 
-def get_categories(**kwargs):
+def get_categories():
     categories = db.session.execute(db.select(Category).order_by(Category.name)).scalars().all()
     return categories
+
+
+def get_category(id):
+    category = db.session.execute(db.select(Category).filter_by(id=id)).scalars().first()
+    return category
+
+
+def get_movies_by_category(id):
+    movies = [mov[1] for mov in db.session.query(Film_Category, Film).filter_by(category_id=id).join(Film).all()]
+    return movies
+
 
 
 def create_actor():
@@ -207,8 +244,8 @@ def build_dict(dict, **kwargs):
 
 @app.route('/')
 def index():
-    build_dict(CENTRAL_DICT, page=url_for('index'))
-    return render_template("index.html", resources=CENTRAL_DICT)
+    build_dict(session, page=url_for('index'), categories=[cat.get() for cat in get_categories()], search='')
+    return render_template("index.html", resources=session)
 
 
 @app.route('/login', methods=["POST"])
@@ -228,19 +265,14 @@ def login():
         if bcrypt.checkpw(password.encode('utf8'), user.password):
             luser = user
             break
-    if luser:
-        global ACTIVE_USER
-        ACTIVE_USER = luser # no u
-    build_dict(CENTRAL_DICT, user=ACTIVE_USER)
-    return redirect(CENTRAL_DICT['page'])
+    build_dict(session, user=luser.get())
+    return redirect(session['page'])
 
 
 @app.route('/logout')
 def logout():
-    global ACTIVE_USER
-    ACTIVE_USER = {}
-    build_dict(CENTRAL_DICT, user=ACTIVE_USER)
-    return redirect(CENTRAL_DICT['page'])
+    build_dict(session, user={})
+    return redirect(session['page'])
 
 
 @app.route('/signin', methods=["POST"])
@@ -255,31 +287,35 @@ def signin():
         if bcrypt.checkpw(password.encode('utf8'), user.password):
             luser = user
             break
-    if luser:
-        global ACTIVE_USER
-        ACTIVE_USER = luser # no u
-    build_dict(CENTRAL_DICT, user=ACTIVE_USER)
-    return redirect(CENTRAL_DICT['page'])
+    build_dict(session, user=luser.get())
+    return redirect(session['page'])
 
 
-@app.route('/categories')
-def categories():
-    categories = {}
-    if not CENTRAL_DICT.get('categories', {}):
-        categories = get_categories()
-    build_dict(CENTRAL_DICT, categories=categories)
-    return redirect(CENTRAL_DICT['page'])
+@app.route('/category/<id>')
+def category(id=0):
+    if id:
+        category = get_category(id)
+        if category:
+            movies = get_movies_by_category(category.id)
+            build_dict(session, page=url_for('category', id=id), search={'movies':{'title': category.name, 'result': [mov.get() for mov in movies]}, 'actors': {'title':'', 'result': []}})
+            return render_template('search.html', resources=session)
+    build_dict(session, page=url_for('index'))
+    return redirect(session['page'])
 
 
-@app.route('/search', methods=['POST'])
+
+@app.route('/search', methods=['POST', 'GET'])
 def search():
-    query = request.form.get('search')
-    result = {'movies': [], 'actors': []}
-    result['movies'] = get_movies(query)
-    result['actors'] = get_actors(query)
-    print(result['actors'])
-    build_dict(CENTRAL_DICT, page='search', search=result)
-    return render_template('search.html', resources=CENTRAL_DICT)
+    if request.method == 'POST':
+        query = request.form.get('search')
+        result = {'movies': [], 'actors': []}
+        result['movies'] = {'title': f'Movies: \'{query}\'', 'result': [mov.get() for mov in get_movies(query)]}
+        result['actors'] = {'title': f'Actors: \'{query}\'', 'result': [act.get() for act in get_actors(query)]}
+        build_dict(session, page='search', search=result, categories=[cat.get() for cat in get_categories()])
+        return render_template('search.html', resources=session)
+    else:
+        build_dict(session, page=url_for('index'))
+        return redirect(session['page'])
 
 
 with app.app_context():

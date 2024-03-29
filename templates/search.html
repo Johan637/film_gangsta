@@ -11,12 +11,12 @@
             <ul class="navbar-nav me-5">
                 {% if not resources.get('user', {}) %}
                 <li class="nav-item me-3">
-                    <button class="btn btn-secondary" type="button" name="login" data-bs-toggle="modal" data-bs-target="loginModal">
+                    <button class="btn btn-secondary" type="button" name="login" data-toggle="modal" data-target="loginModal">
                         login
                     </button>
                 </li>
                 <li class="nav-item me-3">                
-                    <button class="btn btn-secondary" type="button" name="signin" data-bs-toggle="modal" data-bs-target="signinModal">
+                    <button class="btn btn-secondary" type="button" name="signin" data-toggle="modal" data-target="signinModal">
                         sign in
                     </button>
                 </li>
@@ -37,7 +37,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="loginModalLabel">Modal title</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form method="post" action="/login">
                         <div class="modal-body">
@@ -46,7 +46,7 @@
                             <input type="submit" value="login">
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary">Login</button>
                         </div>
                     </form>
@@ -58,7 +58,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="signinModalLabel">Sign in</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form method="post" action="/signin">
                         <div class="modal-body">
@@ -74,7 +74,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="height:900px;">
             <div class="nav flex-column col-2 bg-secondary p-3">
                 <div class="mx-2 my-3">
                     <form class="nav-item form-group col-10" method="post" action="/search">
@@ -83,41 +83,46 @@
                     </form>
                     <div class="nav-item mt-5">
                         <div class="mt-2">
-                            {% if resources['categories']: %}
-                            <a class="btn btn-secondary" href="/categories">Categories -</a>
-                            <ul class="list-unstyled">
+                            <button class="btn btn-secondary" data-toggle="collapse" data-target="#categories" aria-expanded="false" aria-controls="categories">Categories -</button>
+                            <ul class="list-unstyled collapse" id="categories">
                                 {%for category in resources.get('categories', [])%}
                                 <li class="nav-item">
-                                    <a class="nav-link text-white">{{category.name}}</a>
+                                    <a class="nav-link text-white" href="{{url_for('category', id=category.id)}}">{{category.name}}</a>
                                 </li>
                                 {% endfor %}
                             </ul>
-                            {% else %}
-                            <a class="btn btn-secondary" href="/categories">Categories +</a>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
             <div class="container mt-3 col-8">
-                {% if resources['search']['movies'] %}
-                <h1 class="text-white">Movies</h1>
+                {% if resources['search']['movies']['result'] %}
+                <h1 class="text-white">{{resources['search']['movies']['title']}}</h1>
                 <div class="row my-3">
-                    {% for movie in resources['search']['movies'] %}
-                    <div class="col-3">
-                        <img src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" class="border img-fluid">
-                        <p class="text-white">{{movie.title}}</p>
-                    </div>             
+                    {% for movie in resources['search']['movies']['result'] %}
+                    <div class="col-3 my-2">
+                        <div class="card" style="width: 18rem; background-color: #505050;">
+                            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" alt="Card image cap" style="height:160px;">
+                            <div class="card-body">
+                                <h5 class="card-title text-white">{{movie.title}}</h5>
+                                <a href="film/{{movie.id}}" class="btn btn-primary">Page ></a>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
                 {% endif %}
-                {% if resources['search']['actors'] %}
-                <h1 class="text-white">Actors</h1>
+                {% if resources['search']['actors']['result'] %}
+                <h1 class="text-white">{{resources['search']['actors']['title']}}</h1>
                 <div class="row my-3">
-                    {% for actor in resources['search']['actors'] %}
-                    <div class="col-1">
-                        <!--<img src="{{url_for('static', filename='thumbnails/actors/'+actor.thumbnail)}}" class="border img-fluid">-->
-                        <p class="text-white">{{actor.firstname}} {{actor.lastname}}</p>
+                    {% for actor in resources['search']['actors']['result'] %}
+                    <div class="col-3 my-2">
+                        <div class="card" style="width: 18rem; background-color: #505050; height:290px">
+                            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor.thumbnail)}}" alt="Card image cap" style="height:160px;">
+                            <div class="card-body">
+                                <h5 class="card-title text-white">{{actor.firstname + ' ' + actor.lastname}} </h5>
+                            </div>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
