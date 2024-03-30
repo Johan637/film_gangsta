@@ -1,22 +1,26 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session
+import bcrypt
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import bcrypt
 
 
 app = Flask(__name__)
+
 
 # Sleutel opgeven voor het gebruik van Forms
 app.config['SECRET_KEY'] = 'mysecretkey'
 IMG_FOLDER = os.path.join('static', 'thumbnails')
 app.config["UPLOAD_FOLDER"] = IMG_FOLDER
 
+
 # DATABASE en MODELS
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 db = SQLAlchemy(app)
 Migrate(app, db)
@@ -34,7 +38,7 @@ class Director(db.Model):
 
     def get(self):
         return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname}
-    
+
     def name(self):
         return self.firstname +' ' + self.lastname
 
@@ -100,6 +104,9 @@ class Actor(db.Model):
     def get(self):
         return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname, 'thumbnail': self.thumbnail}
 
+    def name(self):
+        return self.firstname +' ' + self.lastname
+
 
 class Role(db.Model):
     __tablename__ = 'role'
@@ -151,8 +158,6 @@ class Quote(db.Model):
         return {'id': self.id, 'user_id': self.user_id, 'description': self.description, 'character': self.character, 'film_id': self.film_id}
 
 
-
-
 class Comment(db.Model):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True)
@@ -179,15 +184,11 @@ def get_movies(title=''):
     return movies
 
 
-def get_film(id):
-    film = db.session.execute(db.select(Film).filter_by(id = id)).scalars().first()
-    return film 
+def get_row(table, **kwargs):
+    row = db.session.execute(db.select(table).filter_by(**kwargs)).scalars().first()
+    return row
 
-def get_director(id):
-    director = db.session.execute(db.select(Director).filter_by(id = id)).scalars().first()
-    return director
 
-      
 def get_actors(name=''):
     actors = []
     if name:
@@ -203,24 +204,9 @@ def get_categories():
     return categories
 
 
-def get_category(id):
-    category = db.session.execute(db.select(Category).filter_by(id=id)).scalars().first()
-    return category
-
-
-def get_movies_by_category(id):
-    movies = [mov[1] for mov in db.session.query(Film_Category, Film).filter_by(category_id=id).join(Film).all()]
-    return movies
-
-def get_categories_by_movie(id):
-    categories = [cat[1] for cat in db.session.query(Film_Category, Category).filter_by(film_id =id).join(Category).all()]
-    return categories
-
-def create_actor():
-    actor = Actor("Ryan", "Gosling")
-    db.session.add(actor)
-    db.session.commit()
-    return actor
+def get_join(table1, table2, **kwargs):
+    rows = [row[1] for row in db.session.query(table1, table2).filter_by(**kwargs).join(table2).all()]
+    return rows
 
 
 def get_users(name="", email=""):
@@ -232,14 +218,6 @@ def get_users(name="", email=""):
     else:
         users = db.session.execute(db.select(User)).scalars().all()
     return users
-
-
-def get_user_dict(user):
-    result = {}
-    if user:
-        result['name'] = user.name
-        result['email'] = user.email
-    return result
 
 
 def create_user(email, name, password):
@@ -256,9 +234,18 @@ def build_dict(dict, **kwargs):
         dict[kw] = arg
 
 
+def build_result(mtitle='', atitle='', movies=[], actors=[]):
+    dict = {'movies': {}, 'actors': {}}
+    dict['movies']['title'] = mtitle
+    dict['actors']['title'] = atitle
+    dict['movies']['result'] = movies
+    dict['actors']['result'] = actors
+    return dict
+
+
 @app.route('/')
 def index():
-    build_dict(session, page=url_for('index'), categories=[cat.get() for cat in get_categories()], search='')
+    build_dict(session, page=url_for('index'), categories=[cat.get() for cat in get_categories()], search={})
     return render_template("index.html", resources=session)
 
 
@@ -306,12 +293,13 @@ def signin():
 
 
 @app.route('/category/<id>')
-def category(id=0):
+def category(id):
     if id:
-        category = get_category(id)
+        category = get_row(Category, id=id)
         if category:
-            movies = get_movies_by_category(category.id)
-            build_dict(session, page=url_for('category', id=id), search={'movies':{'title': category.name, 'result': [mov.get() for mov in movies]}, 'actors': {'title':'', 'result': []}})
+            movies = get_join(Film_Category, Film, category_id=category.id)
+            result = build_result(category.name, movies=[mov.get() for mov in movies])
+            build_dict(session, page=url_for('category', id=id), search=result, categories=[cat.get() for cat in get_categories()])
             return render_template('search.html', resources=session)
     build_dict(session, page=url_for('index'))
     return redirect(session['page'])
@@ -321,28 +309,30 @@ def category(id=0):
 def search():
     if request.method == 'POST':
         query = request.form.get('search')
-        result = {'movies': [], 'actors': []}
-        result['movies'] = {'title': f'Movies: \'{query}\'', 'result': [mov.get() for mov in get_movies(query)]}
-        result['actors'] = {'title': f'Actors: \'{query}\'', 'result': [act.get() for act in get_actors(query)]}
+        result = build_result(f'Movies: \'{query}\'', f'Actors: \'{query}\'', [mov.get() for mov in get_movies(query)], [act.get() for act in get_actors(query)])
         build_dict(session, page='search', search=result, categories=[cat.get() for cat in get_categories()])
         return render_template('search.html', resources=session)
     else:
         build_dict(session, page=url_for('index'))
         return redirect(session['page'])
-    
+
+
+@app.route('/actor/<id>')
+def actor(id):
+    actor = get_row(Actor, id=id)
+    movies = get_join(Role, Film, actor_id=id)
+    result = build_result(actor.name(), movies=[mov.get() for mov in movies])
+    build_dict(session, page=url_for('actor', id=id), categories=[cat.get() for cat in get_categories()], search=result)
+    return render_template('search.html', resources=session)
+
+
 
 @app.route('/film/<id>', methods=['POST', 'GET'])
 def film(id):
-    film = get_film(id)
+    film = get_row(Film, id=id)
     movie = film.get()
-    
-    build_dict(session, page=url_for('film', id = id), film = movie, director = get_director(film.director_id).name())
-    return render_template('film.html', resources = session)
-
-
-
-    
-    
+    build_dict(session, page=url_for('film', id=id), film=movie, director=get_row(Director, id=film.director_id).name(), search={})
+    return render_template('film.html', resources=session)
 
 
 with app.app_context():

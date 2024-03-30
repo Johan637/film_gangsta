@@ -1,142 +1,43 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Filmgangsta</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <!--<link rel="stylesheet" href="../node_modules/bootstrap/scss/bootstrap.scss">-->
-    </head>
-    <body style="background-color:#778da9;">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
-            <a class="navbar-brand ms-5" href="/">Film Gangsta</a>
-            <ul class="navbar-nav me-5">
-                {% if not resources.get('user', {}) %}
-                <li class="nav-item me-3">
-                    <button class="btn btn-secondary" type="button" name="login" data-toggle="modal" data-target="loginModal">
-                        login
-                    </button>
-                </li>
-                <li class="nav-item me-3">                
-                    <button class="btn btn-secondary" type="button" name="signin" data-toggle="modal" data-target="signinModal">
-                        sign in
-                    </button>
-                </li>
-                {% else %}
-                <li class="nav-item me-3">
-                    <div class="dropdown show">
-                        <a class="btn btn-dark dropdown-toggle" role="button" id="userMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ resources.get('user', {}).get('name', '') }}</a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenuLink">
-                            <a class="dropdown-item" href="/logout">logout</a>
-                        </div>
-                    </div>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="loginModalLabel">Modal title</h1>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" action="/login">
-                        <div class="modal-body">
-                            <input type="text" name="username" id="username" placeholder="username/email">
-                            <input type="password" name="password"  id="password" placeholder="password">
-                            <input type="submit" value="login">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Login</button>
-                        </div>
-                    </form>
-                </div>
+{% extends 'base.html' %}
+
+{% block content %}
+{% if resources['search']['movies']['result'] %}
+<h1 class="">{{resources['search']['movies']['title']}}</h1>
+<div class="row my-3">
+    {% for movie in resources['search']['movies']['result'] %}
+    <div class="col-3 my-2">
+        <div class="card" style="background-color: #505050">
+            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" alt="Card image cap" style="height:160px;">
+            <div class="card-body">
+                <h5 class="card-title text-white">{{movie.title}}</h5>
+                <a href="{{url_for('film', id=movie.id)}}" class="btn btn-secondary float-end text-white">Film ></a>
             </div>
         </div>
-        <div class="modal fade" id="signinModal" tabindex="-1" aria-labelledby="signinModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="signinModalLabel">Sign in</h1>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" action="/signin">
-                        <div class="modal-body">
-                            <input type="email" name="email" id="email" placeholder="email">
-                            <input type="text" name="username" id="username" placeholder="username">
-                            <input type="password" name="password"  id="password" placeholder="password">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary float-right">Sign in</button>
-                        </div>
-                    </form>
-                </div>
+    </div>
+    <div class="col-1"></div>
+    {% endfor %}
+</div>
+{% endif %}
+{% if resources['search']['actors']['result'] %}
+<h1 class="text-white">{{resources['search']['actors']['title']}}</h1>
+<div class="row my-3">
+    {% for actor in resources['search']['actors']['result'] %}
+    <div class="col-3 my-2">
+        <div class="card" style="background-color: #505050">
+            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor.thumbnail)}}" alt="Card image cap" style="height:160px;">
+            <div class="card-body">
+                <h5 class="card-title text-white">{{actor.firstname + ' ' + actor.lastname}} </h5>
+                <a href="{{url_for('actor', id=actor.id)}}" class="btn btn-secondary float-end text-white">Actor ></a>
             </div>
         </div>
-        <div class="row" style="height:900px;">
-            <div class="nav flex-column col-2 bg-secondary p-3">
-                <div class="mx-2 my-3">
-                    <form class="nav-item form-group col-10" method="post" action="/search">
-                        <input class="form-control my-2" type="text" name="search" id="search" placeholder="search">
-                        <button class="btn btn-dark float-end" type="submit">Search</button>
-                    </form>
-                    <div class="nav-item mt-5">
-                        <div class="mt-2">
-                            <button class="btn btn-secondary" data-toggle="collapse" data-target="#categories" aria-expanded="false" aria-controls="categories">Categories -</button>
-                            <ul class="list-unstyled collapse" id="categories">
-                                {%for category in resources.get('categories', [])%}
-                                <li class="nav-item">
-                                    <a class="nav-link text-white" href="{{url_for('category', id=category.id)}}">{{category.name}}</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container mt-3 col-8">
-                {% if resources['search']['movies']['result'] %}
-                <h1 class="text-white">{{resources['search']['movies']['title']}}</h1>
-                <div class="row my-3">
-                    {% for movie in resources['search']['movies']['result'] %}
-                    <div class="col-2 mx-3">
-                        <div class="card" style="width: 18rem; background-color: #505050;">
-                            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" alt="Card image cap" style="height:160px;">
-                            <div class="card-body">
-                                <h5 class="card-title text-white">{{movie.title}}</h5>
-                                <a href="film/{{movie.id}}" class="btn btn-secondary float-end">Page ></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class = "col-1"></div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% if resources['search']['actors']['result'] %}
-                <h1 class="text-white">{{resources['search']['actors']['title']}}</h1>
-                <div class="row my-3">
-                    {% for actor in resources['search']['actors']['result'] %}
-                    <div class="col-3 my-2">
-                        <div class="card" style="width: 18rem; background-color: #505050; height:290px">
-                            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor.thumbnail)}}" alt="Card image cap" style="height:160px;">
-                            <div class="card-body">
-                                <h5 class="card-title text-white">{{actor.firstname + ' ' + actor.lastname}} </h5>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% if not resources['search']['movies'] and not resources['search']['actors'] %}
-                <div class="col-12 text-center text-white mt-3">
-                    <h1>No results</h1>
-                </div>
-                {% endif %}
-            </div>        
-        </div>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    </body>
-</html>
+    </div>
+    <div class="col-1"></div>
+    {% endfor %}
+</div>
+{% endif %}
+{% if not resources['search']['movies'] and not resources['search']['actors'] %}
+<div class="col-12 text-center mt-3">
+    <h1>No results</h1>
+</div>
+{% endif %}
+{% endblock %}
