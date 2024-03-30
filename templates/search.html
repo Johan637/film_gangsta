@@ -6,7 +6,7 @@
 <div class="row my-3">
     {% for movie in resources['search']['movies']['result'] %}
     <div class="col-3 my-2">
-        <div class="card" style="background-color: #505050">
+        <div class="card" style="background-color: #012a4a">
             <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" alt="Card image cap" style="height:160px;">
             <div class="card-body">
                 <h5 class="card-title text-white">{{movie.title}}</h5>
@@ -23,7 +23,7 @@
 <div class="row my-3">
     {% for actor in resources['search']['actors']['result'] %}
     <div class="col-3 my-2">
-        <div class="card" style="background-color: #505050">
+        <div class="card" style="background-color: #012a4a">
             <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor.thumbnail)}}" alt="Card image cap" style="height:160px;">
             <div class="card-body">
                 <h5 class="card-title text-white">{{actor.firstname + ' ' + actor.lastname}} </h5>
