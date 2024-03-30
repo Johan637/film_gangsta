@@ -34,6 +34,9 @@ class Director(db.Model):
 
     def get(self):
         return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname}
+    
+    def name(self):
+        return self.firstname +' ' + self.lastname
 
 
 class Category(db.Model):
@@ -176,6 +179,15 @@ def get_movies(title=''):
     return movies
 
 
+def get_film(id):
+    film = db.session.execute(db.select(Film).filter_by(id = id)).scalars().first()
+    return film 
+
+def get_director(id):
+    director = db.session.execute(db.select(Director).filter_by(id = id)).scalars().first()
+    return director
+
+      
 def get_actors(name=''):
     actors = []
     if name:
@@ -200,7 +212,9 @@ def get_movies_by_category(id):
     movies = [mov[1] for mov in db.session.query(Film_Category, Film).filter_by(category_id=id).join(Film).all()]
     return movies
 
-
+def get_categories_by_movie(id):
+    categories = [cat[1] for cat in db.session.query(Film_Category, Category).filter_by(film_id =id).join(Category).all()]
+    return categories
 
 def create_actor():
     actor = Actor("Ryan", "Gosling")
@@ -315,6 +329,20 @@ def search():
     else:
         build_dict(session, page=url_for('index'))
         return redirect(session['page'])
+    
+
+@app.route('/film/<id>', methods=['POST', 'GET'])
+def film(id):
+    film = get_film(id)
+    movie = film.get()
+    
+    build_dict(session, page=url_for('film', id = id), film = movie, director = get_director(film.director_id).name())
+    return render_template('film.html', resources = session)
+
+
+
+    
+    
 
 
 with app.app_context():
