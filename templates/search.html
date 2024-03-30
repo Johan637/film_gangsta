@@ -68,7 +68,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Sign in</button>
+                            <button type="button" class="btn btn-primary float-right">Sign in</button>
                         </div>
                     </form>
                 </div>
@@ -105,7 +105,7 @@
                             <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" alt="Card image cap" style="height:160px;">
                             <div class="card-body">
                                 <h5 class="card-title text-white">{{movie.title}}</h5>
-                                <a href="film/{{movie.id}}" class="btn btn-primary">Page ></a>
+                                <a href="film/{{movie.id}}" class="btn btn-secondary float-end">Page ></a>
                             </div>
                         </div>
                     </div>

@@ -303,7 +303,6 @@ def category(id=0):
     return redirect(session['page'])
 
 
-
 @app.route('/search', methods=['POST', 'GET'])
 def search():
     if request.method == 'POST':
@@ -323,5 +322,5 @@ with app.app_context():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
 
