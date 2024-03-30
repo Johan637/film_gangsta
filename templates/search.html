@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if resources['search']['movies']['result'] %}
-<h1 class="">{{resources['search']['movies']['title']}}</h1>
+{% if result['movies']['result'] %}
+<h1>{{result['movies']['title']}}</h1>
 <div class="row my-3">
-    {% for movie in resources['search']['movies']['result'] %}
+    {% for movie in result['movies']['result'] %}
     <div class="col-3 my-2">
-        <div class="card" style="background-color: #012a4a">
-            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie.thumbnail)}}" alt="Card image cap" style="height:160px;">
+        <div class="card" style="background-color:#012A4A;">
+            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie['thumbnail'])}}" alt="Card image cap" style="height:160px;">
             <div class="card-body">
                 <h5 class="card-title text-white">{{movie.title}}</h5>
                 <a href="{{url_for('film', id=movie.id)}}" class="btn btn-secondary float-end text-white">Film ></a>
@@ -18,13 +18,13 @@
     {% endfor %}
 </div>
 {% endif %}
-{% if resources['search']['actors']['result'] %}
-<h1 class="text-white">{{resources['search']['actors']['title']}}</h1>
+{% if result['actors']['result'] %}
+<h1>{{result['actors']['title']}}</h1>
 <div class="row my-3">
-    {% for actor in resources['search']['actors']['result'] %}
-    <div class="col-3 my-2">
-        <div class="card" style="background-color: #012a4a">
-            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor.thumbnail)}}" alt="Card image cap" style="height:160px;">
+    {% for actor in result['actors']['result'] %}
+    <div class="col-2 my-2">
+        <div class="card" style="background-color:#012A4A;">
+            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor['thumbnail'])}}" alt="Card image cap" style="height:140px;">
             <div class="card-body">
                 <h5 class="card-title text-white">{{actor.firstname + ' ' + actor.lastname}} </h5>
                 <a href="{{url_for('actor', id=actor.id)}}" class="btn btn-secondary float-end text-white">Actor ></a>
@@ -35,7 +35,7 @@
     {% endfor %}
 </div>
 {% endif %}
-{% if not resources['search']['movies'] and not resources['search']['actors'] %}
+{% if not result['movies'] and not result['actors'] %}
 <div class="col-12 text-center mt-3">
     <h1>No results</h1>
 </div>

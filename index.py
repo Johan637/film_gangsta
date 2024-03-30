@@ -243,10 +243,14 @@ def build_result(mtitle='', atitle='', movies=[], actors=[]):
     return dict
 
 
+# Pages
+
 @app.route('/')
 def index():
-    build_dict(session, page=url_for('index'), categories=[cat.get() for cat in get_categories()], search={})
-    return render_template("index.html", resources=session)
+    movies = get_movies()
+    result = build_result('Home', movies=[mov.get() for mov in movies])
+    build_dict(session, page=url_for('index'), categories=[cat.get() for cat in get_categories()])
+    return render_template("index.html", resources=session, result=result)
 
 
 @app.route('/login', methods=["POST"])
@@ -299,8 +303,8 @@ def category(id):
         if category:
             movies = get_join(Film_Category, Film, category_id=category.id)
             result = build_result(category.name, movies=[mov.get() for mov in movies])
-            build_dict(session, page=url_for('category', id=id), search=result, categories=[cat.get() for cat in get_categories()])
-            return render_template('search.html', resources=session)
+            build_dict(session, page=url_for('category', id=id), categories=[cat.get() for cat in get_categories()])
+            return render_template('search.html', resources=session, result=result)
     build_dict(session, page=url_for('index'))
     return redirect(session['page'])
 
@@ -310,8 +314,8 @@ def search():
     if request.method == 'POST':
         query = request.form.get('search')
         result = build_result(f'Movies: \'{query}\'', f'Actors: \'{query}\'', [mov.get() for mov in get_movies(query)], [act.get() for act in get_actors(query)])
-        build_dict(session, page='search', search=result, categories=[cat.get() for cat in get_categories()])
-        return render_template('search.html', resources=session)
+        build_dict(session, page='search', categories=[cat.get() for cat in get_categories()])
+        return render_template('search.html', resources=session, result=result)
     else:
         build_dict(session, page=url_for('index'))
         return redirect(session['page'])
@@ -322,8 +326,8 @@ def actor(id):
     actor = get_row(Actor, id=id)
     movies = get_join(Role, Film, actor_id=id)
     result = build_result(actor.name(), movies=[mov.get() for mov in movies])
-    build_dict(session, page=url_for('actor', id=id), categories=[cat.get() for cat in get_categories()], search=result)
-    return render_template('search.html', resources=session)
+    build_dict(session, page=url_for('actor', id=id), categories=[cat.get() for cat in get_categories()])
+    return render_template('search.html', resources=session, result=result)
 
 
 
@@ -331,7 +335,7 @@ def actor(id):
 def film(id):
     film = get_row(Film, id=id)
     movie = film.get()
-    build_dict(session, page=url_for('film', id=id), film=movie, director=get_row(Director, id=film.director_id).name(), search={})
+    build_dict(session, page=url_for('film', id=id), film=movie, director=get_row(Director, id=film.director_id).name())
     return render_template('film.html', resources=session)
 
 
