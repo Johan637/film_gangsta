@@ -224,7 +224,7 @@ def create_user(email, name, password):
     if get_users(name=name) or get_users(email=email):
         return
     salt = bcrypt.gensalt()
-    user = User(email, name, bcrypt.hashpw(password.encode('utf8'), salt))
+    user = User(email, name, bcrypt.hashpw(password.encode('utf8'), salt).decode('utf-8'))
     db.session.add(user)
     db.session.commit()
 
@@ -267,9 +267,10 @@ def login():
         users = get_users(username)
     luser = None #login user
     for user in users:
-        if bcrypt.checkpw(password.encode('utf8'), user.password):
+        if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
             luser = user
             break
+    print(luser)
     build_dict(session, user=luser.get())
     return redirect(session['page'])
 
@@ -289,9 +290,11 @@ def signin():
     users = get_users(username)
     luser = None #login user
     for user in users:
-        if bcrypt.checkpw(password.encode('utf8'), user.password):
+        if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
             luser = user
             break
+    if not luser:
+        print('false login')
     build_dict(session, user=luser.get())
     return redirect(session['page'])
 

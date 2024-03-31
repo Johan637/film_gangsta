@@ -5,4 +5,4 @@ templates/*
 static/thumbnails/*
 .gitignore
 auto_add.py
-
+db_dump.py
