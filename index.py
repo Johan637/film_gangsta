@@ -341,9 +341,9 @@ def actor(id):
 def film(id):
     film = get_row(Film, id=id)
     movie = film.get()
-    build_dict(session, page=url_for('film', id=id), film=movie, director=get_row(Director, id=film.director_id).name())
+    build_dict(session, page=url_for('film', id=id))
     categories = [cat.get() for cat in get_categories()]
-    return render_template('film.html', categories=categories)
+    return render_template('film.html', categories=categories, film=movie, director=get_row(Director, id=film.director_id).name())
 
 
 with app.app_context():
