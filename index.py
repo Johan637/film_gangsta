@@ -31,10 +31,12 @@ class Director(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(64))
     lastname = db.Column(db.String(128))
+    thumbnail = db.Column(db.String(128))
 
-    def __init__(self, firstname, lastname):
+    def __init__(self, firstname, lastname, thumbnail):
         self.firstname = firstname
         self.lastname = lastname
+        self.thumbnail = thumbnail
 
     def get(self):
         return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname}
@@ -47,7 +49,7 @@ class Category(db.Model):
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-
+    
     def __init__(self, name):
         self.name = name
 
