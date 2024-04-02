@@ -247,6 +247,7 @@ def build_result(mtitle='', atitle='', movies=[], actors=[]):
 
 # Page routing
 
+
 @app.route('/')
 def index():
     movies = get_movies()
@@ -254,6 +255,7 @@ def index():
     categories = [cat.get() for cat in get_categories()]
     build_dict(session, page=url_for('index'))
     return render_template("index.html", categories=categories, result=result)
+
 
 
 @app.route('/login', methods=["POST"])
@@ -346,6 +348,28 @@ def film(id):
     build_dict(session, page=url_for('film', id=id))
     categories = [cat.get() for cat in get_categories()]
     return render_template('film.html', categories=categories, film=movie, director=get_row(Director, id=film.director_id).name())
+
+
+#hier helep
+@app.route('/movies')
+def movies():
+    movies = [mov.get() for mov in get_movies()]
+    build_dict(session, page=url_for('movies'))
+    return render_template('movies.html', movies=movies)
+
+
+@app.route('/actors')
+def actors():
+    actors = [act.get() for act in get_actors()]
+    build_dict(session, page=url_for('actors'))
+    return render_template('actors.html', actors=actors)
+
+
+@app.route('/directors')
+def directors():
+    build_dict(session, page=url_for('directors'))
+    return render_template('directors.html')
+
 
 
 with app.app_context():

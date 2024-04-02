@@ -12,16 +12,35 @@
                     <img src="{{url_for('static', filename='thumbnails/test.png')}}" alt="..." width = "100">
                 </a>
             </div>
+            <div class="container">
+                <ul class= "navbar-nav">
+                    <li class="nav-item me-3">
+                        <button class="btn btn-secondary" type = "button" name="films" href="{{url_for('movies')}}" style="background-color: #202429; color: #F4F9FE;" >
+                            films
+                        </button>
+                    </li>
+                    <li class="nav-item me-3">
+                        <button class="btn btn-secondary" type = "button" name="actors" href="{{url_for('actors')}}" style="background-color: #202429; color: #F4F9FE;" >
+                            actors
+                        </button>
+                    </li>
+                    <li class="nav-item me-3">
+                        <button class="btn btn-secondary" type = "button" name="directors" href="{{url_for('directors')}}" style="background-color: #202429; color: #F4F9FE;" >
+                            directors
+                        </button>
+                    </li>   
+                </ul>
+            </div>
 
             <ul class="navbar-nav me-5">
                 {% if not session['user'] %}
                 <li class="nav-item me-3">
-                    <button class="btn btn-secondary" type="button" name="login" data-toggle="modal" data-target="#loginModal">
+                    <button class="btn btn-secondary" type="button" name="login" data-toggle="modal" data-target="#loginModal" style="background-color: #202429; color: #F4F9FE;">
                         login
                     </button>
                 </li>
-                <li class="nav-item me-5">                
-                    <button class="btn btn-secondary" type="button" name="signin" data-toggle="modal" data-target="#signinModal" style="width:100px" >
+                <li class="nav-item me-3">                
+                    <button class="btn btn-secondary" type="button" name="signin" data-toggle="modal" data-target="#signinModal" style="width:80px; background-color: #202429; color: #F4F9FE;" >
                         sign in
                     </button>
                 </li>
