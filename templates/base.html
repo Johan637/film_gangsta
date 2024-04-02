@@ -8,7 +8,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
             <a class="navbar-brand ms-5" href="{{url_for('index')}}">Film Gangsta</a>
             <ul class="navbar-nav me-5">
-                {% if not resources['user'] %}
+                {% if not session['user'] %}
                 <li class="nav-item me-3">
                     <button class="btn btn-secondary" type="button" name="login" data-toggle="modal" data-target="#loginModal">
                         login
@@ -22,7 +22,7 @@
                 {% else %}
                 <li class="nav-item me-3">
                     <div class="dropdown show">
-                        <a class="btn btn-dark dropdown-toggle" role="button" id="userMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ resources['user']['name'] }}</a>
+                        <a class="btn btn-dark dropdown-toggle" role="button" id="userMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ session['user']['name'] }}</a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenuLink">
                             <a class="dropdown-item" href="/logout">logout</a>
                         </div>
@@ -103,7 +103,7 @@
                         <div class="mt-2">
                             <button class="btn text-white" data-toggle="collapse" data-target="#categories" aria-expanded="false" aria-controls="categories">Categories -</button>
                             <ul class="list-unstyled collapse" id="categories">
-                                {%for category in resources.get('categories', [])%}
+                                {%for category in session['categories']%}
                                 <li class="nav-item">
                                     <a class="nav-link text-white" href="{{url_for('category', id=category.id)}}">{{category.name}}</a>
                                 </li>

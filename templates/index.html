@@ -7,28 +7,28 @@
             <div class="carousel-inner border border-2 rounded border-dark" style="background-color:#012A4A;">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <a href="{{url_for('film', id= result['movies']['result'][0]['id'])}}">
-                        <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies']['result'][0]['thumbnail'])}}" class="d-block w-100" alt="...">
+                        <a href="{{url_for('film', id= result['movies'][0]['id'])}}">
+                            <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies'][0]['thumbnail'])}}" class="d-block w-100" alt="...">
                         </a>
                     </div>
                     <div class="carousel-item">
-                        <a href="{{url_for('film', id= result['movies']['result'][1]['id'])}}">
-                        <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies']['result'][1]['thumbnail'])}}" class="d-block w-100" alt="...">
+                        <a href="{{url_for('film', id= result['movies'][1]['id'])}}">
+                            <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies'][1]['thumbnail'])}}" class="d-block w-100" alt="...">
                         </a>
                     </div>
                     <div class="carousel-item">
-                        <a href="{{url_for('film', id= result['movies']['result'][2]['id'])}}">
-                        <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies']['result'][2]['thumbnail'])}}" class="d-block w-100" alt="...">
+                        <a href="{{url_for('film', id= result['movies'][2]['id'])}}">
+                            <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies'][2]['thumbnail'])}}" class="d-block w-100" alt="...">
                         </a>
                     </div>
                     <div class="carousel-item">
-                        <a href="{{url_for('film', id= result['movies']['result'][3]['id'])}}">
-                        <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies']['result'][3]['thumbnail'])}}" class="d-block w-100" alt="...">
+                        <a href="{{url_for('film', id= result['movies'][3]['id'])}}">
+                            <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies'][3]['thumbnail'])}}" class="d-block w-100" alt="...">
                         </a>
                     </div>
                     <div class="carousel-item">
-                        <a href="{{url_for('film', id= result['movies']['result'][4]['id'])}}">
-                        <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies']['result'][4]['thumbnail'])}}" class="d-block w-100" alt="...">
+                        <a href="{{url_for('film', id= result['movies'][4]['id'])}}">
+                            <img src="{{url_for('static', filename='thumbnails/movies/'+result['movies'][4]['thumbnail'])}}" class="d-block w-100" alt="...">
                         </a>
                     </div>
                 </div>

@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if result['movies']['result'] %}
-<h1>{{result['movies']['title']}}</h1>
+{% if result['movies'] %}
+<h1>{{result['m_title']}}</h1>
 <div class="row my-3">
-    {% for movie in result['movies']['result'] %}
+    {% for movie in result['movies'] %}
     <div class="col-3 my-2">
         <div class="card" style="background-color:#012A4A;">
             <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie['thumbnail'])}}" alt="Card image cap" style="height:160px;">
@@ -18,10 +18,10 @@
     {% endfor %}
 </div>
 {% endif %}
-{% if result['actors']['result'] %}
-<h1>{{result['actors']['title']}}</h1>
+{% if result['actors'] %}
+<h1>{{result['a_title']}}</h1>
 <div class="row my-3">
-    {% for actor in result['actors']['result'] %}
+    {% for actor in result['actors'] %}
     <div class="col-2 my-2">
         <div class="card" style="background-color:#012A4A;">
             <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/actors/'+actor['thumbnail'])}}" alt="Card image cap" style="height:140px;">

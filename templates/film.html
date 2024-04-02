@@ -7,10 +7,10 @@
     </div>
     <div class = "col-6 border">
         <div class = "row border">
-            <h1>{{resources["film"]["title"]}}</h1>
+            <h1>{{session["film"]["title"]}}</h1>
         </div>
         <div class = "row border">
-            <h2> {{resources["film"]["year"]}}</h2>
+            <h2> {{session["film"]["year"]}}</h2>
         </div>
         <div class = "row border">
             <h2> actor 1</h2>
@@ -18,7 +18,7 @@
             <h2> actor 3</h2>
         </div>
         <div class = "row border">
-            <h2> {{resources["director"]}}</h2>
+            <h2> {{session["director"]}}</h2>
         </div>
         <div class = "row border py-2">
             <h2> genre</h2>
@@ -26,7 +26,7 @@
     </div>
     <div class = "row mt-3">
         <div class = "col-5 border">
-            <p>{{resources["film"]["description"]}}</p>
+            <p>{{session["film"]["description"]}}</p>
         </div>
         <div class = "col-7 border">
             <h2> quotes</h2>
