@@ -2,7 +2,7 @@ git.list
 index.py
 data
 templates/*
-static/thumbnails/*
+static/*
 .gitignore
 auto_add.py
 db_dump.py

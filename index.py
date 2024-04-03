@@ -49,7 +49,7 @@ class Category(db.Model):
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    
+
     def __init__(self, name):
         self.name = name
 
@@ -65,13 +65,16 @@ class Film(db.Model):
     description = db.Column(db.Text)
     year = db.Column(db.Integer)
     thumbnail = db.Column(db.String(128))
+    trailer = db.Column(db.String(128))
 
-    def __init__(self, title, description, director_id, year, thumbnail):
+
+    def __init__(self, title, description, director_id, year, thumbnail, trailer):
         self.title = title
         self.decription = description
         self.director_id
         self.year = year
         self.thumbnail = thumbnail
+        self.trailer = trailer
 
     def get(self):
         return {'id': self.id, 'title': self.title, 'description': self.description, 'director_id': self.director_id, 'year': self.year, 'thumbnail': self.thumbnail}
@@ -194,8 +197,8 @@ def get_row(table, **kwargs):
 def get_actors(name=''):
     actors = []
     if name:
-        actors.extend(db.session.execute(db.select(Actor).filter_by(firstname=name)).scalars().all())
-        actors.extend(db.session.execute(db.select(Actor).filter_by(lastname=name)).scalars().all())
+        actors.extend(db.session.execute(db.select(Actor).filter_by(firstname=name.capitalize())).scalars().all())
+        actors.extend(db.session.execute(db.select(Actor).filter_by(lastname=name.capitalize())).scalars().all())
     else:
         actors = db.session.execute(db.select(Actor)).scalars().all()
     return actors
@@ -365,11 +368,12 @@ def film(id):
 
 @app.route('/director/<id>')
 def director(id):
+    director = get_row(Director, id=id)
     movies = get_join(Director, Film, id=id)
-    result = build_result('Director', movies=[mov.get() for mov in movies])
+    result = build_result(director.name(), movies=[mov.get() for mov in movies])
     build_dict(session, page=url_for('director', id=id))
     categories = [cat.get() for cat in get_categories()]
-    return render_template('film.html', categories=categories, result=result)
+    return render_template('search.html', categories=categories, result=result)
 
 
 
