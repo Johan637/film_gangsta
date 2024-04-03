@@ -4,7 +4,9 @@
 
 <div class="row">
     <div class = "col-6  p-0">
-        <img src="{{url_for('static', filename='thumbnails/movies/'+film['thumbnail']) }}" class="img-fluid border rounded-3" alt = "...">
+        <video controls class="img-fluid border rounded-3" poster="{{url_for('static', filename='thumbnails/movies/'+film['thumbnail']) }}">
+            <source src="{{url_for('static', filename='trailers/' + film['trailer'])}}" type="video/mp4">
+        </video> 
     </div>
     <div class = "col-6">
         <div class = "row border-bottom">

@@ -77,7 +77,7 @@ class Film(db.Model):
         self.trailer = trailer
 
     def get(self):
-        return {'id': self.id, 'title': self.title, 'description': self.description, 'director_id': self.director_id, 'year': self.year, 'thumbnail': self.thumbnail}
+        return {'id': self.id, 'title': self.title, 'description': self.description, 'director_id': self.director_id, 'year': self.year, 'thumbnail': self.thumbnail, 'trailer': self.trailer}
 
 
 class Film_Category(db.Model):
@@ -91,7 +91,7 @@ class Film_Category(db.Model):
         self.category_id = category_id
 
     def get(self):
-        return {'id': self.id, 'film_id': film_id, 'category_id': category_id}
+        return {'id': self.id, 'film_id': self.film_id, 'category_id': self.category_id}
 
 
 class Actor(db.Model):
