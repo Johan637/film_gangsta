@@ -35,7 +35,24 @@
     {% endfor %}
 </div>
 {% endif %}
-{% if not result['movies'] and not result['actors'] %}
+{% if result['directors'] %}
+<h1>{{result['d_title']}}</h1>
+<div class="row my-3">
+    {% for director in result['directors'] %}
+    <div class="col-2 my-2">
+        <div class="card" style="background-color:#012A4A;">
+            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/director/'+director['thumbnail'])}}" alt="Card image cap" style="height:140px;">
+            <div class="card-body">
+                <h5 class="card-title text-white">{{director.firstname + ' ' + director.lastname}} </h5>
+                <a href="{{url_for('director', id=director.id)}}" class="btn btn-secondary float-end text-white">Actor ></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-1"></div>
+    {% endfor %}
+</div>
+{% endif %}
+{% if not result['movies'] and not result['actors'] and not result['directors'] %}
 <div class="col-12 text-center mt-3">
     <h1>No results</h1>
 </div>

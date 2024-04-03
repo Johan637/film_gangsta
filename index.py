@@ -39,7 +39,7 @@ class Director(db.Model):
         self.thumbnail = thumbnail
 
     def get(self):
-        return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname}
+        return {'id': self.id, 'firstname': self.firstname, 'lastname': self.lastname, 'thumbnail': self.thumbnail}
 
     def name(self):
         return self.firstname +' ' + self.lastname
@@ -222,6 +222,17 @@ def get_users(name="", email=""):
     return users
 
 
+def get_directors(name = ''):
+    directors = []
+    if name:
+        directors.extend(db.session.execute(db.select(Director).filter_by(firstname=name)).scalars().all())
+        directors.extend(db.session.execute(db.select(Director).filter_by(lastname=name)).scalars().all())
+    else:
+        directors = db.session.execute(db.select(Director)).scalars().all()
+    return directors
+
+
+
 def create_user(email, name, password):
     if get_users(name=name) or get_users(email=email):
         return
@@ -236,14 +247,16 @@ def build_dict(dict, **kwargs):
         dict[kw] = arg
 
 
-def build_result(mtitle='', atitle='', movies=[], actors=[]):
+def build_result(mtitle='', atitle='',dtitle= '', movies=[], actors=[], directors=[]):
     dict = {}
     dict['m_title'] = mtitle
     dict['a_title'] = atitle
+    dict['d_title'] = dtitle
     dict['movies'] = movies
     dict['actors'] = actors
+    dict['directors'] = directors
+   
     return dict
-
 
 # Page routing
 
@@ -275,7 +288,6 @@ def login():
         if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
             luser = user
             break
-    print(luser)
     build_dict(session, user=luser.get())
     return redirect(session['page'])
 
@@ -322,8 +334,9 @@ def category(id):
 def search():
     if request.method == 'POST':
         query = request.form.get('search')
-        result = build_result(f'Movies: \'{query}\'', f'Actors: \'{query}\'', [mov.get() for mov in get_movies(query)], [act.get() for act in get_actors(query)])
-        build_dict(session, page='search', categories=[cat.get() for cat in get_categories()])
+        result = build_result(f'Movies: \'{query}\'', f'Actors: \'{query}\'', f'Directors:\'{query}\'',[mov.get() for mov in get_movies(query)], [act.get() for act in get_actors(query)], [dir.get() for dir in get_directors(query)])
+        build_dict(session, page='search')
+        categories=[cat.get() for cat in get_categories()]
         return render_template('search.html', categories=categories, result=result)
     else:
         build_dict(session, page=url_for('index'))
@@ -350,25 +363,38 @@ def film(id):
     return render_template('film.html', categories=categories, film=movie, director=get_row(Director, id=film.director_id).name())
 
 
-#hier helep
+@app.route('/director/<id>')
+def director(id):
+    movies = get_join(Director, Film, id=id)
+    result = build_result('Director', movies=[mov.get() for mov in movies])
+    build_dict(session, page=url_for('director', id=id))
+    categories = [cat.get() for cat in get_categories()]
+    return render_template('film.html', categories=categories, result=result)
+
+
+
 @app.route('/movies')
 def movies():
-    movies = [mov.get() for mov in get_movies()]
+    result = build_result('Movies', movies=[mov.get() for mov in get_movies()])
     build_dict(session, page=url_for('movies'))
-    return render_template('movies.html', movies=movies)
+    categories = [cat.get() for cat in get_categories()]
+    return render_template('search.html', result=result, categories=categories)
 
 
 @app.route('/actors')
 def actors():
-    actors = [act.get() for act in get_actors()]
+    result = build_result(atitle='Actors', actors=[act.get() for act in get_actors()])
     build_dict(session, page=url_for('actors'))
-    return render_template('actors.html', actors=actors)
+    categories = [cat.get() for cat in get_categories()]
+    return render_template('search.html', result= result, categories=categories)
 
 
 @app.route('/directors')
 def directors():
+    result = build_result(dtitle='Directors', directors=[act.get() for act in get_directors()])
     build_dict(session, page=url_for('directors'))
-    return render_template('directors.html')
+    categories = [cat.get() for cat in get_categories()]
+    return render_template('search.html', result=result, categories=categories)
 
 
 
