@@ -4,7 +4,7 @@
 <div class="container-fluid rounded p-4 my-2" style="background-color:#012A4A">
     <div class="row p-2">
         <div class = "col-6  p-0">
-            <video controls class="img-fluid border rounded-3" poster="{{url_for('static', filename='thumbnails/movies/'+film['thumbnail']) }}">
+            <video controls class="img-fluid border rounded-3" poster="{{url_for('static', filename='thumbnails/movies/'+film['thumbnail']) }}" style="background-color:black;">
                 <source src="{{url_for('static', filename='trailers/' + film['trailer'])}}" type="video/mp4">
             </video> 
         </div>
