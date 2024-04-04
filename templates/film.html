@@ -1,41 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<div class="row">
-    <div class = "col-6  p-0">
-        <video controls class="img-fluid border rounded-3" poster="{{url_for('static', filename='thumbnails/movies/'+film['thumbnail']) }}">
-            <source src="{{url_for('static', filename='trailers/' + film['trailer'])}}" type="video/mp4">
-        </video> 
-    </div>
-    <div class = "col-6">
-        <div class = "row border-bottom">
-            <h1>{{film["title"]}}</h1>
+<div class="container-fluid rounded p-4 my-2" style="background-color:#012A4A">
+    <div class="row p-2">
+        <div class = "col-6  p-0">
+            <video controls class="img-fluid border rounded-3" poster="{{url_for('static', filename='thumbnails/movies/'+film['thumbnail']) }}">
+                <source src="{{url_for('static', filename='trailers/' + film['trailer'])}}" type="video/mp4">
+            </video> 
         </div>
-        <div class = "row">
-            <h5>directed by: <a href="{{url_for('index')}}">{{director}} </a></h5>
+        <div class = "col-6">
+            <div class = "row border-bottom">
+                <h1>{{film["title"]}}</h1>
+            </div>
+            <div class = "row">
+                <h5>directed by: <a class="link-light link-underline-opacity-0" href="{{url_for('index')}}">{{director}} </a></h5>
+            </div>
+            <div class = "row border-top">
+                {% for actor in actors %}
+                <h5>{{actor["firstname"]+" "+ actor["lastname"]}} </h5>
+                {%endfor%}
+            </div>
+            <div class = "row border-top">
+                <h5> {{film["year"]}}</h5>
+            </div>
+            <div class = "row py-2 border-top border-bottom">
+                {% for cat in film["categories"]%}
+                <h5> {{cat["name"]}}</h5>
+                {%endfor%}
+            </div>
         </div>
-        <div class = "row border-top">
-            {% for actor in actors %}
-            <h5>{{actor["firstname"]+" "+ actor["lastname"]}} </h5>
-            {%endfor%}
-        </div>
-        <div class = "row border-top">
-            <h5> {{film["year"]}}</h5>
-        </div>
-        
-        <div class = "row py-2 border-top border-bottom">
-            {% for cat in film["categories"]%}
-            <h5> {{cat["name"]}}</h5>
-            {%endfor%}
-        </div>
-        
-    </div>
-    <div class = "row mt-3 border-bottom">
-        <div class = "col-5 border-end">
-            <p>{{film["description"]}}</p>
-        </div>
-            <div class = "col">
+        <div class = "row mt-3 border-bottom">
+            <div class = "col-5 border-end">
+                <p>{{film["description"]}}</p>
+            </div>
+            <div class="col">
                 <form class="form-inline" method="post" action="/add_quote/{{film['id']}}">
                     <input type="text" class="form-control col-8" name="add_quote" placeholder="Add quote" required>
                     <div class="row py-2" >
@@ -43,7 +41,7 @@
                           <input type="text" class="form-control" name="add_character" placeholder="Character" aria-label="Character" required>
                         </div>
                         <div class="col-3 align-self-end">
-                            <button class="btn btn-secondary" type = "submit" name="films" role="submit" style="background-color: #012A4A;">submit</button>
+                            <button class="btn btn-secondary" type = "submit" name="films">submit</button>
                         </div>
                     </div>
                 </form>
@@ -52,12 +50,10 @@
                 {%endfor%}
             </div>
         </div>
-
     </div>
-    <div class = "row  my-3">
-        <div class = "col-12">
+    <div class="row my-3 p-2">
+        <div class="col-12">
         <h2> comments</h2>
-        </div>
     </div>
 </div>
 {% endblock %}
