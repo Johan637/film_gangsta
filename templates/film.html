@@ -13,19 +13,20 @@
                 <h1>{{film["title"]}}</h1>
             </div>
             <div class = "row">
-                <h5>directed by: <a class="link-light link-underline-opacity-0" href="{{url_for('index')}}">{{director}} </a></h5>
+                <h5>directed by: <a class="link-light link-underline-opacity-0" href="{{url_for('directors', id=director_id)}}">{{director}} </a></h5>
             </div>
             <div class = "row border-top">
                 {% for actor in actors %}
-                <h5>{{actor["firstname"]+" "+ actor["lastname"]}} </h5>
+                <h5><a class="link-light link-underline-opacity-0" href="{{url_for('actor', id=actor.id)}}"> {{actor["firstname"]+" "+ actor["lastname"]}} </a></h5>
                 {%endfor%}
             </div>
             <div class = "row border-top">
                 <h5> {{film["year"]}}</h5>
             </div>
             <div class = "row py-2 border-top border-bottom">
+                
                 {% for cat in film["categories"]%}
-                <h5> {{cat["name"]}}</h5>
+                <h5>{%for category in categories%}<a class="link-light link-underline-opacity-0" href="{{url_for('category', id=cat.id)}}">{%endfor%}  {{cat["name"]}}</a></h5>
                 {%endfor%}
             </div>
         </div>
@@ -35,7 +36,7 @@
             </div>
             <div class="col">
                 <form class="form-inline" method="post" action="/add_quote/{{film['id']}}">
-                    <input type="text" class="form-control col-8" name="add_quote" placeholder="Add quote" required>
+                    <input type="text" class="form-control col-8" name="add_quote" id="autoSizingInput" placeholder="Add quote" required>
                     <div class="row py-2" >
                         <div class="col-9">
                           <input type="text" class="form-control" name="add_character" placeholder="Character" aria-label="Character" required>
@@ -51,9 +52,23 @@
             </div>
         </div>
     </div>
-    <div class="row my-3 p-2">
-        <div class="col-12">
-        <h2> comments</h2>
+    <div class="row my-3 ">
+        <div>
+            <form class="form-inline" method="post" action="/add_comment/{{film['id']}}">
+                <div class="row pb-2" >
+                    <div class="col-9">
+                      <input type="text" class="form-control" name="add_comment" placeholder="Add comment" aria-label="Add comment" required>
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-secondary float-end" type="submit" name="films">submit</button>
+                    </div>
+                </div>
+            </form>
+            {% for comment in comments %}
+            <h5 class="border-top">{{comment["description"]}} </h5>
+            {%endfor%}
+        </div>
+    </div>
     </div>
 </div>
 {% endblock %}
