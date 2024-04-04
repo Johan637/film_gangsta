@@ -44,4 +44,19 @@
         </div>
     </div>
 </div>
+<div class="row pt-3 mt-3">
+    {% for movie in result['movies'][5:] %}
+    <div class="col-3 my-2">
+        <div class="card" style="background-color:#012A4A;">
+            <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/movies/'+movie['thumbnail'])}}" alt="Card image cap" style="height:160px;">
+            <div class="card-body">
+                <h5 class="card-title text-white">{{movie.title}}</h5>
+                <a href="{{url_for('film', id=movie.id)}}" class="btn btn-secondary float-end text-white">Film ></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-1"></div>
+    {% endfor %}
+</div>
+
 {% endblock %}

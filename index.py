@@ -267,7 +267,7 @@ def build_result(mtitle='', atitle='',dtitle= '', movies=[], actors=[], director
 @app.route('/')
 def index():
     movies = get_movies()
-    result = build_result('Home', movies=[mov.get() for mov in movies])
+    result = build_result('Home', movies=[mov.get() for mov in movies[:26]])
     categories = [cat.get() for cat in get_categories()]
     build_dict(session, page=url_for('index'))
     return render_template("index.html", categories=categories, result=result)
