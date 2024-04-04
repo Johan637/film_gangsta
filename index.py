@@ -403,7 +403,7 @@ def directors():
     return render_template('search.html', result=result, categories=categories)
 
 
-@app.route('/add_quote' method=['POST', 'GET'])
+@app.route('/add_quote', methods=['POST', 'GET'])
 def add_quote():
     if request.method == 'POST':
         query = request.form.get('add_quote')
