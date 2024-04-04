@@ -35,16 +35,21 @@
         <div class = "col-5 border-end">
             <p>{{film["description"]}}</p>
         </div>
-            <div class = "col-7">
-                
-                <form class="form-inline" href="{{url_for('add_quote')}}">
-                    <div class="row">
-                    <input type="text" class="form-control col-8" id="add_quote" placeholder="add quote">
-                    <a class="btn btn-secondary col-2" type = "button" name="films" role="submit">submit</a>
+            <div class = "col">
+                <form class="form-inline" method="post" action="/add_quote/{{film['id']}}">
+                    <input type="text" class="form-control col-8" name="add_quote" placeholder="Add quote" required>
+                    <div class="row py-2" >
+                        <div class="col-9">
+                          <input type="text" class="form-control" name="add_character" placeholder="Character" aria-label="Character" required>
+                        </div>
+                        <div class="col-3 align-self-end">
+                            <button class="btn btn-secondary" type = "submit" name="films" role="submit" style="background-color: #012A4A;">submit</button>
+                        </div>
                     </div>
                 </form>
-                    
-                <h2> quotes</h2>
+                {% for quote in quotes %}
+                <h5 class ="pt-2 border-top">{{"\"" + quote["description"]+"\"" +"- "+ quote["character"]}} </h5>
+                {%endfor%}
             </div>
         </div>
 

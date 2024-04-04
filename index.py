@@ -363,9 +363,10 @@ def film(id):
     movie = film.get()
     movie["categories"] = [cat.get() for cat in get_join(Film_Category, Category, film_id = id)]
     actors =[act.get() for act in get_join(Role, Actor, film_id=id)]
+    quotes = [quote.get() for quote in get_join(Film, Quote, id = id)]
     build_dict(session, page=url_for('film', id=id))
     categories = [cat.get() for cat in get_categories()]
-    return render_template('film.html', categories=categories, film=movie, actors= actors, director=get_row(Director, id=film.director_id).name())
+    return render_template('film.html', categories=categories, film=movie, actors= actors, quotes=quotes, director=get_row(Director, id=film.director_id).name())
 
 
 @app.route('/director/<id>')
@@ -403,13 +404,16 @@ def directors():
     return render_template('search.html', result=result, categories=categories)
 
 
-@app.route('/add_quote', methods=['POST', 'GET'])
-def add_quote():
+@app.route('/add_quote/<film_id>', methods=['POST', 'GET'])
+def add_quote(film_id):
     if request.method == 'POST':
-        query = request.form.get('add_quote')
-        db.session.add(Quote(session["user"]["id"], query, character))
-        db.session.commit
-        return render_template()
+        if session.get("user",""):
+            query = request.form.get('add_quote')
+            print(query)
+            character = request.form.get('add_character')
+            db.session.add(Quote(session["user"]["id"], query, character, film_id))
+            db.session.commit()    
+        return redirect(session["page"])
     else:
         build_dict(session, page=url_for('index'))
         return redirect(session['page'])
