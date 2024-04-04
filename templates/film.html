@@ -16,23 +16,36 @@
             <h5>directed by: <a href="{{url_for('index')}}">{{director}} </a></h5>
         </div>
         <div class = "row border-top">
-            <h5> actor 1</h5>
-            <h5> actor 2</h5>
-            <h5> actor 3</h5>
+            {% for actor in actors %}
+            <h5>{{actor["firstname"]+" "+ actor["lastname"]}} </h5>
+            {%endfor%}
         </div>
         <div class = "row border-top">
             <h5> {{film["year"]}}</h5>
         </div>
+        
         <div class = "row py-2 border-top border-bottom">
-            <h5> genre</h5>
+            {% for cat in film["categories"]%}
+            <h5> {{cat["name"]}}</h5>
+            {%endfor%}
         </div>
+        
     </div>
     <div class = "row mt-3 border-bottom">
         <div class = "col-5 border-end">
             <p>{{film["description"]}}</p>
         </div>
-        <div class = "col-7">
-            <h2> quotes</h2>
+            <div class = "col-7">
+                
+                <form class="form-inline" href="{{url_for('add_quote')}}">
+                    <div class="row">
+                    <input type="text" class="form-control col-8" id="add_quote" placeholder="add quote">
+                    <a class="btn btn-secondary col-2" type = "button" name="films" role="submit">submit</a>
+                    </div>
+                </form>
+                    
+                <h2> quotes</h2>
+            </div>
         </div>
 
     </div>

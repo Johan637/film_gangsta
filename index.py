@@ -361,9 +361,11 @@ def actor(id):
 def film(id):
     film = get_row(Film, id=id)
     movie = film.get()
+    movie["categories"] = [cat.get() for cat in get_join(Film_Category, Category, film_id = id)]
+    actors =[act.get() for act in get_join(Role, Actor, film_id=id)]
     build_dict(session, page=url_for('film', id=id))
     categories = [cat.get() for cat in get_categories()]
-    return render_template('film.html', categories=categories, film=movie, director=get_row(Director, id=film.director_id).name())
+    return render_template('film.html', categories=categories, film=movie, actors= actors, director=get_row(Director, id=film.director_id).name())
 
 
 @app.route('/director/<id>')
@@ -399,6 +401,18 @@ def directors():
     build_dict(session, page=url_for('directors'))
     categories = [cat.get() for cat in get_categories()]
     return render_template('search.html', result=result, categories=categories)
+
+
+@app.route('/add_quote' method=['POST', 'GET'])
+def add_quote():
+    if request.method == 'POST':
+        query = request.form.get('add_quote')
+        db.session.add(Quote(session["user"]["id"], query, character))
+        db.session.commit
+        return render_template()
+    else:
+        build_dict(session, page=url_for('index'))
+        return redirect(session['page'])
 
 
 

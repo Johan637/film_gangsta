@@ -44,7 +44,7 @@
             <img class="card-img-top img-fluid" src="{{url_for('static', filename='thumbnails/director/'+director['thumbnail'])}}" alt="Card image cap" style="height:140px;">
             <div class="card-body">
                 <h5 class="card-title text-white">{{director.firstname + ' ' + director.lastname}} </h5>
-                <a href="{{url_for('director', id=director.id)}}" class="btn btn-secondary float-end text-white">Actor ></a>
+                <a href="{{url_for('director', id=director.id)}}" class="btn btn-secondary float-end text-white">Director ></a>
             </div>
         </div>
     </div>
