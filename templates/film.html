@@ -13,7 +13,7 @@
                 <h1>{{film["title"]}}</h1>
             </div>
             <div class = "row">
-                <h5>directed by: <a class="link-light link-underline-opacity-0" href="{{url_for('directors', id=director_id)}}">{{director}} </a></h5>
+                <h5>directed by: <a class="link-light link-underline-opacity-0" href="{{url_for('director', id=director['id'])}}">{{director["firstname"]+ " "+ director["lastname"]}} </a></h5>
             </div>
             <div class = "row border-top">
                 {% for actor in actors %}
@@ -65,7 +65,7 @@
                 </div>
             </form>
             {% for comment in comments %}
-            <h5 class="border-top">{{comment["description"]}} </h5>
+            <h5 class="border-top">{{comment["username"]+ ": " + comment["description"] }} </h5>
             {%endfor%}
         </div>
     </div>

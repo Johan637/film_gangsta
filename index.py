@@ -365,9 +365,12 @@ def film(id):
     actors =[act.get() for act in get_join(Role, Actor, film_id=id)]
     quotes = [quote.get() for quote in get_join(Film, Quote, id = id)]
     comments = [comment.get() for comment in get_join(Film, Comment, id = id)]
+    for comment in comments:
+        user = get_row(User, id = comment["user_id"])
+        comment.update(username = user.name)
     build_dict(session, page=url_for('film', id=id))
     categories = [cat.get() for cat in get_categories()]
-    return render_template('film.html', categories=categories, film=movie, actors= actors, comments = comments, quotes=quotes, director=get_row(Director, id=film.director_id).name())
+    return render_template('film.html', categories=categories, film=movie, actors= actors, comments = comments, quotes=quotes, director=get_row(Director, id=film.director_id).get())
 
 
 @app.route('/director/<id>')
