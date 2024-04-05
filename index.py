@@ -68,10 +68,10 @@ class Film(db.Model):
     trailer = db.Column(db.String(128))
 
 
-    def __init__(self, title, description, director_id, year, thumbnail, trailer):
+    def __init__(self, title, director_id, description, year, thumbnail, trailer):
         self.title = title
-        self.decription = description
-        self.director_id
+        self.description = description
+        self.director_id = director_id
         self.year = year
         self.thumbnail = thumbnail
         self.trailer = trailer
@@ -135,14 +135,16 @@ class User(db.Model):
     name = db.Column(db.String(64))
     email = db.Column(db.String(64))
     password = db.Column(db.String(64))
+    role = db.Column(db.String(16))
 
-    def __init__(self, email, name, password):
+    def __init__(self, email, name, password, role):
         self.email = email
         self.name = name
         self.password = password
+        self.role = role
 
     def get(self):
-        return {'id': self.id, 'name': self.name, 'email': self.email}
+        return {'id': self.id, 'name': self.name, 'email': self.email, 'role': self.role}
 
 
 class Quote(db.Model):
@@ -236,11 +238,11 @@ def get_directors(name = ''):
 
 
 
-def create_user(email, name, password):
+def create_user(email, name, password, role='user'):
     if get_users(name=name) or get_users(email=email):
         return
     salt = bcrypt.gensalt()
-    user = User(email, name, bcrypt.hashpw(password.encode('utf8'), salt).decode('utf-8'))
+    user = User(email, name, bcrypt.hashpw(password.encode('utf8'), salt).decode('utf-8'), role)
     db.session.add(user)
     db.session.commit()
 
@@ -258,7 +260,6 @@ def build_result(mtitle='', atitle='',dtitle= '', movies=[], actors=[], director
     dict['movies'] = movies
     dict['actors'] = actors
     dict['directors'] = directors
-   
     return dict
 
 # Page routing
@@ -274,24 +275,28 @@ def index():
 
 
 
-@app.route('/login', methods=["POST"])
+@app.route('/login', methods=["POST", "GET"])
 def login():
-    email = False
-    username = request.form.get("username")
-    if "@" in username:
-        email = True
-    password = request.form.get("password")
-    users = None
-    if email:
-        users = get_users(email = username)
+    if request.method == 'POST':
+        email = False
+        username = request.form.get("username")
+        if "@" in username:
+            email = True
+        password = request.form.get("password")
+        users = None
+        if email:
+            users = get_users(email = username)
+        else:
+            users = get_users(username)
+        luser = None #login user
+        for user in users:
+            if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
+                luser = user
+                break
+        if luser:
+            build_dict(session, user=luser.get())
     else:
-        users = get_users(username)
-    luser = None #login user
-    for user in users:
-        if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
-            luser = user
-            break
-    build_dict(session, user=luser.get())
+        build_dict(session, page=url_for('index'))
     return redirect(session['page'])
 
 
@@ -301,22 +306,37 @@ def logout():
     return redirect(session['page'])
 
 
-@app.route('/signin', methods=["POST"])
+@app.route('/signin', methods=["POST", "GET"])
 def signin():
-    email = request.form.get("email")
-    username = request.form.get("username")
-    password = request.form.get("password")
-    create_user(email, username, password)
-    users = get_users(username)
-    luser = None #login user
-    for user in users:
-        if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
-            luser = user
-            break
-    if not luser:
-        print('false login')
-    build_dict(session, user=luser.get())
+    if request.method == 'POST':
+        email = request.form.get("email")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        create_user(email, username, password)
+        users = get_users(username)
+        suser = None # sign in user
+        for user in users:
+            if bcrypt.checkpw(password.encode('utf8'), user.password.encode('utf-8')):
+                suser = user
+                break
+        if lsser:
+            build_dict(session, user=suser.get())
+        else:
+            print('false login')
+    else:
+        build_dict(session, page=url_for('index'))
     return redirect(session['page'])
+
+
+@app.route('/admin')
+def admin():
+    if session.get('user', '') and session['user']['role'] == 'admin':
+        categories = [cat.get() for cat in get_categories()]
+        build_dict(session, page=url_for('admin'))
+        return render_template('admin.html', categories=categories)
+    else:
+        return redirect(session['page'])
+
 
 
 @app.route('/category/<id>')
@@ -408,15 +428,54 @@ def directors():
     return render_template('search.html', result=result, categories=categories)
 
 
+@app.route('/add_film', methods=['POST', 'GET'])
+def add_film():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        dir_fn = request.form.get('dirfn')
+        dir_ln = request.form.get('dirln')
+        director = get_row(Director, firstname=dir_fn, lastname=dir_ln)
+        if not director:
+            db.session.add(Director(dir_fn, dir_ln, f'{dir_fn.lower().replace(" ", "_")}_{dir_ln.lower().replace(" ", "_")}.jpg'))
+            db.session.commit()
+            director = get_row(Director, firstname=dir_fn, lastname=dir_ln)
+        desc = request.form.get('description')
+        year = int(request.form.get('year'))
+        film = Film(title, director.id, desc, year, f'{title.lower().replace(" ", "_")}.jpg', f'{title.lower().replace(" ", "_")}_trailer.mp4')
+        print(film.get())
+        db.session.add(film)
+        db.session.commit()
+        film = get_row(Film, title=title, director_id=director.id, year=year)
+        print(film.get())
+        cat = request.form.get('category', '').capitalize()
+        category = get_row(Category, name=cat)
+        if not category:
+            db.session.add(Category(cat))
+            db.session.commit()
+            category = get_row(Category, name=cat)
+        db.session.add(Film_Category(film.id, category.id))
+        db.session.commit()
+        for i in range(1, 4):
+            actor_fn = request.form.get(f'act{i}fn')
+            actor_ln = request.form.get(f'act{i}ln')
+            char = request.form.get(f'role{i}')
+            actor = get_row(Actor, firstname=actor_fn, lastname=actor_ln)
+            if not actor:
+                db.session.add(Actor(actor_fn, actor_ln, f'{actor_fn.lower().replace(" ", "_")}_{actor_ln.lower().replace(" ", "_")}.jpg'))
+                db.session.commit()
+                actor = get_row(Actor, firstname=actor_fn, lastname=actor_ln)
+            db.session.add(Role(actor.id, film.id, char))
+            db.session.commit()
+        return redirect(session['page'])
+
+
 @app.route('/add_quote/<film_id>', methods=['POST', 'GET'])
 def add_quote(film_id):
     if request.method == 'POST':
         if session.get("user",""):
             query = request.form.get('add_quote')
-            print(query)
             character = request.form.get('add_character')
             db.session.add(Quote(session["user"]["id"], query, character, film_id))
-            db.session.commit()    
         return redirect(session["page"])
     else:
         build_dict(session, page=url_for('index'))
@@ -429,7 +488,7 @@ def add_comment(film_id):
             query = request.form.get('add_comment')
             print(query)
             db.session.add(Comment(session["user"]["id"], query, film_id))
-            db.session.commit()    
+            db.session.commit()
         return redirect(session["page"])
     else:
         build_dict(session, page=url_for('index'))

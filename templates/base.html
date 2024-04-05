@@ -45,7 +45,10 @@
                     <div class="dropdown show">
                         <a class="btn btn-dark dropdown-toggle" role="button" id="userMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ session['user']['name'] }}</a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenuLink">
-                            <a class="dropdown-item" href="/logout">logout</a>
+                            {% if session['user']['role'] == 'admin'  %}
+                            <a class="dropdown-item" href="{{url_for('admin')}}">admin</a>
+                            {% endif %}
+                            <a class="dropdown-item" href="{{url_for('logout')}}">logout</a>
                         </div>
                     </div>
                 </li>
@@ -59,7 +62,7 @@
                         <h1 class="modal-title fs-5" id="loginModalLabel">Modal title</h1>
                         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form class="form-group" method="post" action="/login">
+                    <form class="form-group" method="post" action="{{url_for('login')}}">
                         <div class="modal-body container">
                             <div class="row my-3 justify-content-center">
                                 <div class="col-9">
@@ -87,7 +90,7 @@
                         <h1 class="modal-title fs-5" id="signinModalLabel">Sign in</h1>
                         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form class="form-group" method="post" action="/signin">
+                    <form class="form-group" method="post" action="{{url_for('signin')}}">
                         <div class="modal-body container">
                             <div class="row my-3 justify-content-center">
                                 <div class="col-9">
@@ -116,7 +119,7 @@
         <div class="row" style="height:900px;">
             <div class="nav flex-column col-2 p-3" style="background-color:#012A4A;">
                 <div class="mx-2 my-3">
-                    <form class="nav-item form-group col-10" method="post" action="/search">
+                    <form class="nav-item form-group col-10" method="post" action="{{url_for('search')}}">
                         <input class="form-control my-2" type="text" name="search" id="search" placeholder="search">
                         <button class="btn btn-dark float-end" type="submit">Search</button>
                     </form>
