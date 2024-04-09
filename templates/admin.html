@@ -117,7 +117,7 @@
                         </div>
                         <div class="row col-6 my-2">
                             <h6>Category</h6>
-                            <select>
+                            <select name="category">
                                 {% for category in categories %}
                                 <option value="{{category.id}}">{{category.name}}</option>
                                 {% endfor %}
@@ -137,7 +137,7 @@
                                 <option value="{{actor.id}}">{{actor.name()}}</option>
                                 {% endfor %}
                             </select>   
-                            <input class="form-control my-2" placeholder="role" name="role{{1}}" type="text" required>
+                            <input class="form-control my-2" placeholder="role" name="role{{i}}" type="text" required>
                         </div>
                     </div>
                     {% endfor %}
