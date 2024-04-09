@@ -35,6 +35,7 @@
                 <p>{{film["description"]}}</p>
             </div>
             <div class="col">
+                {% if session.get('user') %}
                 <form class="form-inline" method="post" action="/add_quote/{{film['id']}}">
                     <input type="text" class="form-control col-8" name="add_quote" id="autoSizingInput" placeholder="Add quote" required>
                     <div class="row py-2" >
@@ -46,6 +47,9 @@
                         </div>
                     </div>
                 </form>
+                {% else %}
+                <p>Only registered users can add quotes</p>
+                {% endif %}
                 {% for quote in quotes %}
                 <h5 class ="pt-2 border-top">{{"\"" + quote["description"]+"\"" +"- "+ quote["character"]}} </h5>
                 {%endfor%}
@@ -54,6 +58,7 @@
     </div>
     <div class="row my-3 ">
         <div>
+            {% if session.get('user') %}
             <form class="form-inline" method="post" action="/add_comment/{{film['id']}}">
                 <div class="row pb-2" >
                     <div class="col-9">
@@ -64,6 +69,9 @@
                     </div>
                 </div>
             </form>
+            {% else %}
+            <p>Only registered users can add comments</p>
+            {% endif %}
             {% for comment in comments %}
             <h5 class="border-top">{{comment["username"]+ ": " + comment["description"] }} </h5>
             {%endfor%}
